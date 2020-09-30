@@ -5,7 +5,7 @@ defmodule Rewire.Module do
   import Rewire.Utils
 
   def rewire_module(mod, opts) do
-    if !Code.ensure_compiled?(mod) do
+    if Code.ensure_compiled(mod) == {:error, :nofile} do
       raise "unable to rewire '#{module_to_name(mod)}': module does not exist"
     end
 
