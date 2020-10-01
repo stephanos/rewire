@@ -4,18 +4,6 @@ defmodule Rewire.Block do
 
   import Rewire.Utils
 
-  def __on_definition__(env = %{aliases: module_aliases}, _kind, _name, _args, _guards, _body) do
-    known_aliases = Module.get_attribute(env.module, :rewire_aliases) || []
-
-    # Adding the module's aliases in the module attribute.
-    known_aliases = Keyword.merge(known_aliases, module_aliases)
-
-    # Adding the function's aliases in the module attribute.
-    # TODO
-
-    Module.put_attribute(env.module, :rewire_aliases, known_aliases)
-  end
-
   def rewire_block({:__aliases__, _, rewire_module_ast}, opts, aliases, block) do
     rewire_module_ast = resolve_alias(rewire_module_ast, aliases)
     rewire_module = "Elixir.#{module_ast_to_name(rewire_module_ast)}" |> String.to_atom()

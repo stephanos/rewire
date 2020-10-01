@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1] - 2020-09-30
+
+### Changed
+* improved alias detection of caller module
+
+
 ## [0.2.0] - 2020-09-30
 
 ### Changed
