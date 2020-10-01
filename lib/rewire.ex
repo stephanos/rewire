@@ -10,7 +10,7 @@ defmodule Rewire do
       # Hook to keep track of functions and their aliases.
       @on_definition Rewire.Block
 
-      # Required for importing the `rewire` macro.
+      # Needed for importing the `rewire` macro.
       import Rewire
     end
   end
@@ -24,6 +24,4 @@ defmodule Rewire do
     aliases = Module.get_attribute(__CALLER__.module, :rewire_aliases) || []
     Rewire.Block.rewire_block(rewire_expr, [], aliases, block)
   end
-
-  defdelegate rewire_module(mod, opts \\ []), to: Rewire.Module
 end

@@ -5,38 +5,39 @@ defmodule Rewire.Module do
   import Rewire.Utils
 
   def rewire_module(mod, opts) do
+    # We need to make sure that the module to rewire actually exists first.
     if Code.ensure_compiled(mod) == {:error, :nofile} do
-      raise "unable to rewire '#{module_to_name(mod)}': module does not exist"
+      raise CompileError,
+        description:
+          "unable to rewire '#{module_to_name(mod)}': cannot find module - does it exist?"
     end
 
-    # find module's source file path
+    # Find module's source file path.
     source_path =
       mod.module_info()
       |> Keyword.get(:compile)
       |> Keyword.get(:source)
       |> to_string()
 
-    # load module's AST
+    # Load module's AST.
     source = File.read!(source_path)
     {:ok, ast} = Code.string_to_quoted(source)
 
-    # create a module copy with a new name and replaced dependencies
-    old_mod_name = mod |> Atom.to_string()
-    new_mod_name = Keyword.fetch!(opts, :new_module_ast) |> module_ast_to_name()
+    # Create a copy of the AST with a new module name and replaced dependencies.
+    old_mod_name = mod |> Atom.to_string() |> String.trim_leading("Elixir.")
+    new_mod_name = Map.fetch!(opts, :new_module_ast) |> module_ast_to_name()
 
     new_ast =
       traverse(
         ast,
         module_name_to_ast(old_mod_name),
         module_name_to_ast(new_mod_name),
-        parse_opts(opts)
+        opts
       )
 
+    # Now evaluate the new module's AST so the file location is correct. (is there a better way?)
     Code.eval_quoted(new_ast, [], file: source_path)
-
-    {:module, res} = "Elixir.#{new_mod_name}" |> String.to_atom() |> Code.ensure_loaded()
-
-    res
+    "Elixir.#{new_mod_name}" |> String.to_atom()
   end
 
   defp traverse(ast, old_module_ast, new_module_ast, opts) do
@@ -61,7 +62,7 @@ defmodule Rewire.Module do
     new_ast
   end
 
-  # changes the rewired module's name to prevent a naming collision
+  # Changes the rewired module's name to prevent a naming collision.
   defp rewrite(
          {:defmodule, l1, [{:__aliases__, l2, module_ast} | rest]},
          acc = %{
@@ -74,29 +75,29 @@ defmodule Rewire.Module do
 
     cond do
       full_module_ast == old_module_ast ->
-        # we found the module to rewire,
-        # let's generate a new one with a unique name
+        # We found the module to rewire,
+        # let's generate a new one with a unique name.
         {{:defmodule, l1, [{:__aliases__, l2, new_module_ast} | rest]}, acc}
 
       List.starts_with?(full_module_ast, old_module_ast) ->
-        # we found a nested module within the module to rewrite,
-        # let's rewire that one too since it might contain references to the parent module
+        # We found a nested module within the module to rewrite,
+        # let's rewire that one too since it might contain references to the parent module.
         # TODO
         {[], acc}
 
       List.starts_with?(old_module_ast, full_module_ast) ->
-        # we (possibly) found a wrapper module around the module to rewrite,
-        # let's look ahead to find the nested module so we can skip the rest
+        # We (possibly) found a wrapper module around the module to rewrite,
+        # let's look ahead to find the nested module so we can skip the rest.
         # TODO
         {[], acc}
 
       true ->
-        # skip module entirely because it would just be redefined, causing a warning
+        # Skip module entirely because it would just be redefined, causing a warning.
         {[], acc}
     end
   end
 
-  # removes the rewired module's aliases that point to the replaced modules
+  # Removes the rewired module's aliases that point to the replaced modules.
   defp rewrite(
          expr = {:alias, _, [{:__aliases__, _, module_ast}]},
          acc = %{overrides: overrides}
@@ -118,7 +119,7 @@ defmodule Rewire.Module do
     end)
   end
 
-  # replaces any rewired module's references to point to mocks instead
+  # Replaces any rewired module's references to point to mocks instead.
   defp rewrite(
          expr = {:__aliases__, l1, module_ast},
          acc = %{overrides: overrides, overrides_completed: overrides_completed}
@@ -133,7 +134,7 @@ defmodule Rewire.Module do
     end
   end
 
-  # anything else just passes through
+  # Anything else just passes through.
   defp rewrite(expr, acc), do: {expr, acc}
 
   defp find_override(overrides, module_ast) do
@@ -149,25 +150,17 @@ defmodule Rewire.Module do
     end)
   end
 
-  defp parse_opts(opts) do
-    Enum.reduce(opts, %{}, fn
-      {k, v}, acc when is_atom(k) ->
-        Map.update(acc, :overrides, %{}, &Map.put(&1, module_to_ast(k), module_to_ast(v)))
-
-      {k, _}, _acc ->
-        raise "unknown option passed to `rewire`: #{inspect(k)}"
-    end)
-  end
-
   defp report_broken_overrides(module_ast, overrides, overrides_completed) do
     case overrides -- overrides_completed do
       [] ->
         :do_nothing
 
       [unused_override] ->
-        raise "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{
-                module_ast_to_name(unused_override)
-              }' not found"
+        raise CompileError,
+          description:
+            "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{
+              module_ast_to_name(unused_override)
+            }' not found"
 
       unused_overrides ->
         dependency_list =
@@ -176,9 +169,9 @@ defmodule Rewire.Module do
            |> Enum.map_join(", ", fn ast -> "'#{module_ast_to_name(ast)}'" end)) <>
             " and '" <> module_ast_to_name(List.last(unused_overrides)) <> "'"
 
-        raise "unable to rewire '#{module_ast_to_name(module_ast)}': dependencies #{
-                dependency_list
-              } not found"
+        raise CompileError,
+          description:
+            "unable to rewire '#{module_ast_to_name(module_ast)}': dependencies #{dependency_list} not found"
     end
   end
 end
