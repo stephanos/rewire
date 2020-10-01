@@ -26,12 +26,14 @@ defmodule Rewire.Module do
     # Create a copy of the AST with a new module name and replaced dependencies.
     old_mod_name = mod |> Atom.to_string() |> String.trim_leading("Elixir.")
     new_mod_name = Map.fetch!(opts, :new_module_ast) |> module_ast_to_name()
+
     new_ast =
       traverse(
         ast,
         module_name_to_ast(old_mod_name),
         module_name_to_ast(new_mod_name),
-        opts)
+        opts
+      )
 
     # Now evaluate the new module's AST so the file location is correct. (is there a better way?)
     Code.eval_quoted(new_ast, [], file: source_path)
@@ -80,12 +82,14 @@ defmodule Rewire.Module do
       List.starts_with?(full_module_ast, old_module_ast) ->
         # We found a nested module within the module to rewrite,
         # let's rewire that one too since it might contain references to the parent module.
-        {[], acc} # TODO
+        # TODO
+        {[], acc}
 
       List.starts_with?(old_module_ast, full_module_ast) ->
         # We (possibly) found a wrapper module around the module to rewrite,
         # let's look ahead to find the nested module so we can skip the rest.
-        {[], acc} # TODO
+        # TODO
+        {[], acc}
 
       true ->
         # Skip module entirely because it would just be redefined, causing a warning.
