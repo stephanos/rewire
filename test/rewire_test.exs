@@ -39,20 +39,20 @@ defmodule RewireTest do
     refute output =~ "warning"
   end
 
-  # @tag :skip
-  # test "creates copy of a nested module" do
-  #   output =
-  #     capture_io(:stderr, fn ->
-  #       original_module = Rewire.ModuleWithNested.Nested.NestedNested
+  @tag :skip
+  test "creates copy of a nested module" do
+    output =
+      capture_io(:stderr, fn ->
+        original_module = Rewire.ModuleWithNested.Nested.NestedNested
 
-  #       rewire Rewire.ModuleWithNested.Nested.NestedNested do
-  #         assert Rewire.ModuleWithNested.Nested.NestedNested != original_module
-  #         assert Rewire.ModuleWithNested.Nested.NestedNested.hello() == original_module.hello()
-  #       end
-  #     end)
+        rewire Rewire.ModuleWithNested.Nested.NestedNested do
+          assert Rewire.ModuleWithNested.Nested.NestedNested != original_module
+          assert Rewire.ModuleWithNested.Nested.NestedNested.hello() == original_module.hello()
+        end
+      end)
 
-  #   refute output =~ "warning"
-  # end
+    refute output =~ "warning"
+  end
 
   test "rewires non-aliased dependency" do
     output =
