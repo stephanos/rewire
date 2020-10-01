@@ -24,6 +24,4 @@ defmodule Rewire do
     aliases = Module.get_attribute(__CALLER__.module, :rewire_aliases) || []
     Rewire.Block.rewire_block(rewire_expr, [], aliases, block)
   end
-
-  defdelegate rewire_module(mod, opts \\ []), to: Rewire.Module
 end

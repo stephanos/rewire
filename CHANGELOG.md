@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.0] - 2020-09-30
+
+### Changed
+* moved all code generation to compile-time due to compiler warnings in Elixir 1.10+
+
+
 ## [0.1.1] - 2020-09-30
 
 ### Changed

@@ -6,7 +6,8 @@ defmodule Rewire.Module do
 
   def rewire_module(mod, opts) do
     if Code.ensure_compiled(mod) == {:error, :nofile} do
-      raise "unable to rewire '#{module_to_name(mod)}': module does not exist"
+      raise CompileError,
+        description: "unable to rewire '#{module_to_name(mod)}': cannot find module - does it exist?"
     end
 
     # find module's source file path
@@ -21,15 +22,15 @@ defmodule Rewire.Module do
     {:ok, ast} = Code.string_to_quoted(source)
 
     # create a module copy with a new name and replaced dependencies
-    old_mod_name = mod |> Atom.to_string()
-    new_mod_name = Keyword.fetch!(opts, :new_module_ast) |> module_ast_to_name()
+    old_mod_name = mod |> Atom.to_string() |> String.trim_leading("Elixir.")
+    new_mod_name = Map.fetch!(opts, :new_module_ast) |> module_ast_to_name()
 
     new_ast =
       traverse(
         ast,
         module_name_to_ast(old_mod_name),
         module_name_to_ast(new_mod_name),
-        parse_opts(opts)
+        opts
       )
 
     Code.eval_quoted(new_ast, [], file: source_path)
@@ -149,25 +150,17 @@ defmodule Rewire.Module do
     end)
   end
 
-  defp parse_opts(opts) do
-    Enum.reduce(opts, %{}, fn
-      {k, v}, acc when is_atom(k) ->
-        Map.update(acc, :overrides, %{}, &Map.put(&1, module_to_ast(k), module_to_ast(v)))
-
-      {k, _}, _acc ->
-        raise "unknown option passed to `rewire`: #{inspect(k)}"
-    end)
-  end
-
   defp report_broken_overrides(module_ast, overrides, overrides_completed) do
     case overrides -- overrides_completed do
       [] ->
         :do_nothing
 
       [unused_override] ->
-        raise "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{
-                module_ast_to_name(unused_override)
-              }' not found"
+        raise CompileError,
+          description:
+            "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{
+              module_ast_to_name(unused_override)
+            }' not found"
 
       unused_overrides ->
         dependency_list =
@@ -176,9 +169,9 @@ defmodule Rewire.Module do
            |> Enum.map_join(", ", fn ast -> "'#{module_ast_to_name(ast)}'" end)) <>
             " and '" <> module_ast_to_name(List.last(unused_overrides)) <> "'"
 
-        raise "unable to rewire '#{module_ast_to_name(module_ast)}': dependencies #{
-                dependency_list
-              } not found"
+        raise CompileError,
+          description:
+            "unable to rewire '#{module_ast_to_name(module_ast)}': dependencies #{dependency_list} not found"
     end
   end
 end

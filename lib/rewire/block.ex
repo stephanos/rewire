@@ -16,39 +16,58 @@ defmodule Rewire.Block do
     Module.put_attribute(env.module, :rewire_aliases, known_aliases)
   end
 
-  def rewire_block(rewire_expr = {:__aliases__, _, rewire_module_ast}, opts, aliases, block) do
-    # This ID is used to generate a random module name. It has to start with an uppercase letter.
-    context_id = "R#{Enum.random(0..10_000)}" |> String.to_atom()
+  def rewire_block({:__aliases__, _, rewire_module_ast}, opts, aliases, block) do
+    rewire_module_ast = resolve_alias(rewire_module_ast, aliases)
+    rewire_module = "Elixir.#{module_ast_to_name(rewire_module_ast)}" |> String.to_atom()
 
-    # We need to define the new module name here because
-    # it's required to rewrite the test's module references at compile-time.
-    new_module_ast = resolve_alias(rewire_module_ast, aliases) ++ [context_id]
+    # Generate the generated module's name.
+    context_id = "R#{Enum.random(0..10_000)}" |> String.to_atom()
+    new_module_ast = rewire_module_ast ++ [context_id]
+    opts = parse_opts(opts, aliases) |> Map.put(:new_module_ast, new_module_ast)
 
     quote do
-      # First, the module needs to be actually rewired.
-      # This happens at runtime so we'll inject the call to do so right here.
-      Rewire.rewire_module(
-        unquote(rewire_expr),
-        unquote(Keyword.put(opts, :new_module_ast, new_module_ast))
-      )
+      unquote(Rewire.Module.rewire_module(rewire_module, opts))
 
       # Then, we'll replace all references to the original module with our rewired one.
       # We can do that because we already know the name of it ahead of time.
-      unquote(rewire_test_block(block, rewire_module_ast, new_module_ast))
+      unquote(rewire_test_block(block, rewire_module_ast, new_module_ast, aliases))
     end
   end
 
   def rewire_block(_expr, _opts, _block) do
-    raise "unable to rewire: the first argument must be a module"
+    raise CompileError, description: "unable to rewire: the first argument must be a module"
   end
 
-  defp rewire_test_block(block, rewire_module_ast, new_module_ast) do
+  defp rewire_test_block(block, rewire_module_ast, new_module_ast, aliases) do
     Macro.prewalk(block, fn
-      {:__aliases__, meta, module_ast} when module_ast == rewire_module_ast ->
-        {:__aliases__, meta, new_module_ast}
+      expr = {:__aliases__, meta, module_ast} ->
+        cond do
+          resolve_alias(module_ast, aliases) == rewire_module_ast ->
+            {:__aliases__, meta, new_module_ast}
+
+          true ->
+            expr
+        end
 
       expr ->
         expr
+    end)
+  end
+
+  defp parse_opts(opts, aliases) do
+    Enum.reduce(opts, %{overrides: %{}}, fn
+      {{:__aliases__, _, module_ast}, {:__aliases__, _, replacement_module_ast}}, acc ->
+        put_in(acc, [:overrides, module_ast], resolve_alias(replacement_module_ast, aliases))
+
+      {k, {:__aliases__, _, replacement_module_ast}}, acc when is_atom(k) ->
+        put_in(
+          acc,
+          [:overrides, module_to_ast(k)],
+          resolve_alias(replacement_module_ast, aliases)
+        )
+
+      {k, _}, _acc ->
+        raise CompileError, description: "unknown option passed to `rewire`: #{inspect(k)}"
     end)
   end
 end

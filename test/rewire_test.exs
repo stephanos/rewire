@@ -1,7 +1,9 @@
 defmodule RewireTest do
   use ExUnit.Case
   use Rewire
+
   import ExUnit.CaptureIO
+  import Assertions
 
   alias Rewire.Hello
 
@@ -37,20 +39,20 @@ defmodule RewireTest do
     refute output =~ "warning"
   end
 
-  @tag :skip
-  test "creates copy of a nested module" do
-    output =
-      capture_io(:stderr, fn ->
-        original_module = Rewire.ModuleWithNested.Nested.NestedNested
+  # @tag :skip
+  # test "creates copy of a nested module" do
+  #   output =
+  #     capture_io(:stderr, fn ->
+  #       original_module = Rewire.ModuleWithNested.Nested.NestedNested
 
-        rewire Rewire.ModuleWithNested.Nested.NestedNested do
-          assert Rewire.ModuleWithNested.Nested.NestedNested != original_module
-          assert Rewire.ModuleWithNested.Nested.NestedNested.hello() == original_module.hello()
-        end
-      end)
+  #       rewire Rewire.ModuleWithNested.Nested.NestedNested do
+  #         assert Rewire.ModuleWithNested.Nested.NestedNested != original_module
+  #         assert Rewire.ModuleWithNested.Nested.NestedNested.hello() == original_module.hello()
+  #       end
+  #     end)
 
-    refute output =~ "warning"
-  end
+  #   refute output =~ "warning"
+  # end
 
   test "rewires non-aliased dependency" do
     output =
@@ -113,35 +115,47 @@ defmodule RewireTest do
   end
 
   test "fails if module to replace can not be found" do
-    assert_raise RuntimeError,
-                 "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependency 'Rewire.NonExistant' not found",
-                 fn ->
-                   rewire Rewire.ModuleWithAliasedDependency, [{Rewire.NonExistant, Bonjour}] do
-                     # nothing here
-                   end
-                 end
+    assert_compile_time_raise "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependency 'Rewire.NonExistant' not found" do
+      defmodule TestModuleNotFound do
+        use Rewire
+
+        def func do
+          rewire Rewire.ModuleWithAliasedDependency, [{Rewire.NonExistant, Bonjour}] do
+            # nothing here
+          end
+        end
+      end
+    end
   end
 
   test "fails if module shorthand to replace can not be found" do
-    assert_raise RuntimeError,
-                 "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependency 'NonExistant' not found",
-                 fn ->
-                   rewire Rewire.ModuleWithAliasedDependency, NonExistant: Bonjour do
-                     # nothing here
-                   end
-                 end
+    assert_compile_time_raise "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependency 'NonExistant' not found" do
+      defmodule TestModuleNotFound do
+        use Rewire
+
+        def func do
+          rewire Rewire.ModuleWithAliasedDependency, NonExistant: Bonjour do
+            # nothing here
+          end
+        end
+      end
+    end
   end
 
   test "fails if multiple module shorthands to replace can not be found" do
-    assert_raise RuntimeError,
-                 "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependencies 'NonExistant' and 'OtherNonExistant' not found",
-                 fn ->
-                   rewire Rewire.ModuleWithAliasedDependency,
-                     NonExistant: Bonjour,
-                     OtherNonExistant: Bonjour do
-                     # nothing here
-                   end
-                 end
+    assert_compile_time_raise "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependencies 'NonExistant' and 'OtherNonExistant' not found" do
+      defmodule TestModuleNotFound do
+        use Rewire
+
+        def func do
+          rewire Rewire.ModuleWithAliasedDependency,
+            NonExistant: Bonjour,
+            OtherNonExistant: Bonjour do
+            # nothing here
+          end
+        end
+      end
+    end
   end
 
   test "stracktrace still points to original file location" do
@@ -160,12 +174,16 @@ defmodule RewireTest do
   end
 
   test "fails if module does not exist" do
-    assert_raise RuntimeError,
-                 "unable to rewire 'Elixir.ModuleDoesNotExist': module does not exist",
-                 fn ->
-                   rewire ModuleDoesNotExist do
-                     # nothing
-                   end
-                 end
+    assert_compile_time_raise "unable to rewire 'Elixir.ModuleDoesNotExist': cannot find module - does it exist?" do
+      defmodule TestModuleNotFound do
+        use Rewire
+
+        def func do
+          rewire ModuleDoesNotExist do
+            # nothing
+          end
+        end
+      end
+    end
   end
 end
