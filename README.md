@@ -32,7 +32,7 @@ end
 
 **Witchcraft! How does this work??**
 
-Simply put, `rewire` will create a copy of the module to rewire under a new name at runtime, replacing all hard-coded module references that should be changed in the process. Plus, it rewrites the test code in the `rewire` block to use the generated module instead.
+Simply put, `rewire` will create a copy of the module to rewire under a new name, replacing all hard-coded module references that should be changed in the process. Plus, it rewrites the test code in the `rewire` block to use the generated module instead.
 
 **Will that slow down my tests?**
 
