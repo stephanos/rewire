@@ -2,7 +2,7 @@ rewire
 ===
 
 [![Build Status](https://travis-ci.org/stephanos/rewire.svg?branch=master)](https://travis-ci.org/stephanos/rewire)
-[![Hex.pm](https://img.shields.io/hexpm/v/rewire.svg)]()
+[![Hex.pm](https://img.shields.io/hexpm/v/rewire.svg)](https://hex.pm/packages/rewire)
 
 Keep your code free from dependency injection and mocking concerns by using `rewire` in your unit tests to stub out any module dependencies:
 
