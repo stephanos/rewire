@@ -8,7 +8,7 @@ Keep your code free from dependency injection and mocking concerns by using `rew
 
 ```elixir
 defmodule MyModule do
-  def do_something(), do: MyDep.foo()
+  def do_something(), do: MyDep.foo()          # the dependency is hard-wired
 end
 
 
@@ -22,7 +22,7 @@ defmodule MyTest do
 
   test "my test" do
     rewire MyModule, MyDep: MyMock do
-      assert MyModule.foo() == "bar"
+      assert MyModule.do_something() == "bar"  # this uses MyMock now!
     end
   end
 end
