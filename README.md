@@ -24,11 +24,11 @@ defmodule MyTest do
   use Rewire
   import Mox
 
-  rewire Conversation, English: French         # acts as an alias to the rewired module
+  rewire Conversation, English: Mock           # acts as an alias to the rewired module
 
   test "my test" do
-    stub(French, :greet, fn -> "bonjour" end)  #
-    assert Conversation.init() == "bonjour"    # this uses French now!
+    stub(Mock, :greet, fn -> "bonjour" end)
+    assert Conversation.init() == "bonjour"    # this uses Mock now!
   end
 end
 ```
@@ -42,9 +42,9 @@ defmodule MyTest do
   import Mox
 
   test "my test" do
-    rewire Conversation, English: French do    # within the block it is rewired
-      stub(French, :greet, fn -> "bonjour" end)
-      assert Conversation.init() == "bonjour"  # this uses French now!
+    rewire Conversation, English: Mock do      # within the block it is rewired
+      stub(Mock, :greet, fn -> "bonjour" end)
+      assert Conversation.init() == "bonjour"  # this uses Mock now!
     end
   end
 end
