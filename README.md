@@ -8,7 +8,7 @@ Keep your code free from dependency injection and mocking concerns by using `rew
 
 ## Usage
 
-For example, given this module:
+For example:
 
 ```elixir
 defmodule Conversation do
@@ -16,7 +16,7 @@ defmodule Conversation do
 end
 ```
 
-You can rewire the dependency with a `mox`-based mock like this:
+You can rewire the dependency with a mock, using `mox` for example:
 
 ```elixir
 defmodule MyTest do
@@ -48,6 +48,12 @@ defmodule MyTest do
     end
   end
 end
+```
+
+You can also give the alias a different name using `as`:
+
+```elixir
+  rewire Conversation, English: Mock, as: SmallTalk
 ```
 
 ## FAQ
