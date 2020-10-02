@@ -1,5 +1,12 @@
 # Changelog
 
+
+## [0.3.0] - 2020-10-01
+
+### Added
+* module-scoped `rewire`
+
+
 ## [0.2.1] - 2020-09-30
 
 ### Changed
