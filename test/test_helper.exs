@@ -1,9 +1,17 @@
 ExUnit.start()
 
+defmodule Bonjour do
+  def hello(), do: "bonjour"
+end
+
 Mox.defmock(Rewire.HelloMock, for: Rewire.Hello)
 
-defmodule Assertions do
+defmodule TestHelpers do
   defmodule DidNotRaise, do: defstruct(description: nil)
+
+  defmacro wrap_macro(do: block) do
+    Code.eval_quoted(block)
+  end
 
   defmacro assert_compile_time_raise(expected_message, do: block) do
     actual_exception =
