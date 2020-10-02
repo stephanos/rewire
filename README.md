@@ -4,25 +4,47 @@ rewire
 [![Build Status](https://travis-ci.org/stephanos/rewire.svg?branch=master)](https://travis-ci.org/stephanos/rewire)
 [![Hex.pm](https://img.shields.io/hexpm/v/rewire.svg)](https://hex.pm/packages/rewire)
 
-Keep your code free from dependency injection and mocking concerns by using `rewire` in your unit tests to stub out any module dependencies:
+Keep your code free from dependency injection and mocking concerns by using `rewire` in your unit tests to stub out any module dependencies.
+
+## Usage
+
+For example, given this module:
 
 ```elixir
 defmodule MyModule do
   def do_something(), do: MyDep.foo()          # the dependency is hard-wired
 end
+```
 
+You can rewire the dependency with a `mox`-based mock like this:
 
+```elixir
 defmodule MyTest do
   use ExUnit.Case
   use Rewire
+  import Mox
 
-  defmodule MyMock do
-    def foo(), do: "bar"
-  end
+  rewire MyModule, MyDep: MyDepMock
 
   test "my test" do
-    rewire MyModule, MyDep: MyMock do
-      assert MyModule.do_something() == "bar"  # this uses MyMock now!
+    stub(MyDepMock, :foo, fn -> "bar" end)
+    assert MyModule.do_something() == "bar"    # this uses MyDepMock now!
+  end
+end
+```
+
+Alternatively, you can also rewire a module on a test-by-test basis:
+
+```elixir
+defmodule MyTest do
+  use ExUnit.Case
+  use Rewire
+  import Mox
+
+  test "my test" do
+    rewire MyModule, MyDep: MyDepMock do
+      stub(MyDepMock, :foo, fn -> "bar" end)
+      assert MyModule.do_something() == "bar"  # this uses MyDepMock now!
     end
   end
 end

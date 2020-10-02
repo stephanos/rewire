@@ -4,7 +4,7 @@ defmodule Bonjour do
   def hello(), do: "bonjour"
 end
 
-Mox.defmock(Rewire.HelloMock, for: Rewire.Hello)
+Mox.defmock(HelloMock, for: Rewire.Hello)
 
 defmodule TestHelpers do
   defmodule DidNotRaise, do: defstruct(description: nil)
