@@ -12,7 +12,7 @@ For example, given this module:
 
 ```elixir
 defmodule Conversation do
-  def init(), do: English.greet()              # the dependency is hard-wired
+  def start(), do: English.greet()              # the dependency is hard-wired
 end
 ```
 
@@ -24,11 +24,11 @@ defmodule MyTest do
   use Rewire
   import Mox
 
-  rewire Conversation, English: Mock           # acts as an alias to the rewired module
+  rewire Conversation, English: Mock            # acts as an alias to the rewired module
 
   test "greet" do
     stub(Mock, :greet, fn -> "bonjour" end)
-    assert Conversation.init() == "bonjour"    # this uses Mock now!
+    assert Conversation.start() == "bonjour"    # this uses Mock now!
   end
 end
 ```
@@ -42,9 +42,9 @@ defmodule MyTest do
   import Mox
 
   test "greet" do
-    rewire Conversation, English: Mock do      # within the block it is rewired
+    rewire Conversation, English: Mock do       # within the block it is rewired
       stub(Mock, :greet, fn -> "bonjour" end)
-      assert Conversation.init() == "bonjour"  # this uses Mock now!
+      assert Conversation.start() == "bonjour"  # this uses Mock now!
     end
   end
 end
