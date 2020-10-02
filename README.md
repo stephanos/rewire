@@ -6,9 +6,7 @@ rewire
 
 Keep your code free from dependency injection and mocking concerns by using `rewire` in your unit tests to stub out any module dependencies.
 
-## Usage
-
-For example:
+## Example
 
 ```elixir
 defmodule Conversation do
