@@ -11,8 +11,8 @@ Keep your code free from dependency injection and mocking concerns by using `rew
 For example, given this module:
 
 ```elixir
-defmodule MyModule do
-  def do_something(), do: MyDep.foo()          # the dependency is hard-wired
+defmodule Conversation do
+  def init(), do: English.greet()              # the dependency is hard-wired
 end
 ```
 
@@ -24,11 +24,11 @@ defmodule MyTest do
   use Rewire
   import Mox
 
-  rewire MyModule, MyDep: MyDepMock
+  rewire Conversation, English: French         # acts as an alias to the rewired module
 
   test "my test" do
-    stub(MyDepMock, :foo, fn -> "bar" end)
-    assert MyModule.do_something() == "bar"    # this uses MyDepMock now!
+    stub(French, :greet, fn -> "bonjour" end)  #
+    assert Conversation.init() == "bonjour"    # this uses French now!
   end
 end
 ```
@@ -42,9 +42,9 @@ defmodule MyTest do
   import Mox
 
   test "my test" do
-    rewire MyModule, MyDep: MyDepMock do
-      stub(MyDepMock, :foo, fn -> "bar" end)
-      assert MyModule.do_something() == "bar"  # this uses MyDepMock now!
+    rewire Conversation, English: French do    # within the block it is rewired
+      stub(French, :greet, fn -> "bonjour" end)
+      assert Conversation.init() == "bonjour"  # this uses French now!
     end
   end
 end
