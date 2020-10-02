@@ -26,7 +26,7 @@ defmodule MyTest do
 
   rewire Conversation, English: Mock           # acts as an alias to the rewired module
 
-  test "my test" do
+  test "greet" do
     stub(Mock, :greet, fn -> "bonjour" end)
     assert Conversation.init() == "bonjour"    # this uses Mock now!
   end
@@ -41,7 +41,7 @@ defmodule MyTest do
   use Rewire
   import Mox
 
-  test "my test" do
+  test "greet" do
     rewire Conversation, English: Mock do      # within the block it is rewired
       stub(Mock, :greet, fn -> "bonjour" end)
       assert Conversation.init() == "bonjour"  # this uses Mock now!
