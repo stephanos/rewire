@@ -14,7 +14,7 @@ defmodule RewireAliasTest do
       assert RewiredModule.hello() == "bonjour"
     end
 
-    test "however, this will stay the same" do
+    test "however, the full path will stay the same" do
       assert Rewire.ModuleWithDependency.hello() == "hello"
     end
   end
