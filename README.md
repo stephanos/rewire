@@ -52,6 +52,31 @@ end
 
 ## FAQ
 
+**Why?**
+
+I haven't been happy with the existing tradeoffs of making a module with dependencies easily unit testable.
+
+If you don't use `mox`, the best approach known to me is to pass-in dependencies via a function's parameters:
+
+```elixir
+defmodule Conversation do
+  def start(mod \\ English), do: mod.greet()
+end
+```
+
+But this will (1) litter your code with testing concerns, (2) make navigation in your editor harder, (3) searches for usages of the module more difficult and (4) make it impossible for the compiler to warn you in case `greet/0` doesn't exist on the `English` module
+
+If you use `mox`, there's a slightly better approach:
+
+```elixir
+defmodule Conversation do
+  def start(), do: english().greet()
+  defp english(), do: Application.get(:myapp, :english, English)
+end
+```
+
+In this approach we use the app's config to replace a module with a `mox` mock during testing. This is a little better in my opinion, but still comes with most of the disadvantages described above.
+
 **Witchcraft! How does this work??**
 
 Simply put, `rewire` will create a copy of the module to rewire under a new name, replacing all hard-coded module references that should be changed in the process. Plus, it rewrites the test code in the `rewire` block to use the generated module instead.
