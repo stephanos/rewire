@@ -4,6 +4,9 @@ defmodule Rewire.Utils do
 
   def parse_opts(opts, aliases) do
     Enum.reduce(opts, %{overrides: %{}}, fn
+      {:as, {:__aliases__, _, new_name}}, acc ->
+        Map.put(acc, :as, new_name)
+
       {:as, new_name}, acc ->
         Map.put(acc, :as, new_name)
 

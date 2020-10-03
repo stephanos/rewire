@@ -9,11 +9,11 @@ defmodule RewireBlockTest do
       output =
         capture_io(:stderr, fn ->
           rewire Rewire.ModuleWithDependency, [{Rewire.Hello, Bonjour}] do
-            assert Rewire.ModuleWithDependency.hello() == "bonjour"
+            assert ModuleWithDependency.hello() == "bonjour"
           end
 
           rewire Rewire.ModuleWithDependency, Hello: Bonjour do
-            assert Rewire.ModuleWithDependency.hello() == "bonjour"
+            assert ModuleWithDependency.hello() == "bonjour"
           end
         end)
 
@@ -24,7 +24,7 @@ defmodule RewireBlockTest do
       output =
         capture_io(:stderr, fn ->
           rewire Rewire.ModuleWithAliasedDependency, Hello: Bonjour do
-            assert Rewire.ModuleWithAliasedDependency.hello() == "bonjour"
+            assert ModuleWithAliasedDependency.hello() == "bonjour"
           end
         end)
 
@@ -35,7 +35,7 @@ defmodule RewireBlockTest do
       output =
         capture_io(:stderr, fn ->
           rewire Rewire.ModuleWithRenamedDependency, Hello: Bonjour do
-            assert Rewire.ModuleWithRenamedDependency.hello() == "bonjour"
+            assert ModuleWithRenamedDependency.hello() == "bonjour"
           end
         end)
 
@@ -46,7 +46,7 @@ defmodule RewireBlockTest do
       output =
         capture_io(:stderr, fn ->
           rewire Rewire.ModuleWithImportedDependency, Hello: Bonjour do
-            assert Rewire.ModuleWithImportedDependency.helloooo() == "bonjour"
+            assert ModuleWithImportedDependency.helloooo() == "bonjour"
           end
         end)
 
@@ -57,8 +57,8 @@ defmodule RewireBlockTest do
       output =
         capture_io(:stderr, fn ->
           rewire Rewire.ModuleWithGenServer, Hello: Bonjour do
-            pid = start_supervised!(Rewire.ModuleWithGenServer)
-            assert Rewire.ModuleWithGenServer.hello(pid) == "bonjour"
+            pid = start_supervised!(ModuleWithGenServer)
+            assert ModuleWithGenServer.hello(pid) == "bonjour"
           end
         end)
 
@@ -67,8 +67,8 @@ defmodule RewireBlockTest do
 
     test "stracktrace still points to original file location" do
       try do
-        rewire Rewire.Goodbye do
-          Rewire.Goodbye.hello()
+        rewire Rewire.Goodbye, as: Goodbye do
+          Goodbye.hello()
         end
 
         refute "we never get here"

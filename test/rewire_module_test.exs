@@ -11,9 +11,9 @@ defmodule RewireModuleTest do
         capture_io(:stderr, fn ->
           original_module = Rewire.Hello
 
-          rewire Rewire.Hello do
-            assert Rewire.Hello != original_module
-            assert Rewire.Hello.hello() == original_module.hello()
+          rewire Rewire.Hello, as: Hello do
+            assert Hello != original_module
+            assert Hello.hello() == original_module.hello()
           end
         end)
 
@@ -25,7 +25,7 @@ defmodule RewireModuleTest do
         capture_io(:stderr, fn ->
           original_module = Hello
 
-          rewire Hello do
+          rewire Hello, as: Hello do
             assert Hello != original_module
             assert Hello.hello() == original_module.hello()
           end

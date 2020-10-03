@@ -16,10 +16,14 @@ defmodule Rewire.Alias do
 
       # Then, we add an alias for the newly generated module using the name of the original module.
       unquote(
-        {:alias, [context: Elixir], [
-          {:__aliases__, [alias: false], new_module_ast},
-          [as: {:__aliases__, [alias: false], [Map.get(opts, :as, List.last(rewire_module_ast))]}]
-        ]}
+        {:alias, [context: Elixir],
+         [
+           {:__aliases__, [alias: false], new_module_ast},
+           [
+             as:
+               {:__aliases__, [alias: false], Map.get(opts, :as, [List.last(rewire_module_ast)])}
+           ]
+         ]}
       )
     end
   end

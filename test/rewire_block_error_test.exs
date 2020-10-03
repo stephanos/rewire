@@ -55,7 +55,7 @@ defmodule RewireBlockErrorTest do
           use Rewire
 
           def func do
-            rewire ModuleDoesNotExist do
+            rewire ModuleDoesNotExist, as: Mod do
               # nothing
             end
           end
