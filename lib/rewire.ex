@@ -74,21 +74,44 @@ defmodule Rewire do
     end
   end
 
-  defmacro rewire(rewire_expr) do
-    %{aliases: aliases} = __CALLER__
-    Rewire.Alias.rewire_alias(rewire_expr, [], aliases)
-  end
+  @doc """
+  Macro that allows to rewire (and alias) a module.
 
-  defmacro rewire(rewire_expr, do: block) do
-    %{aliases: aliases} = __CALLER__
-    Rewire.Block.rewire_block(rewire_expr, [], aliases, block)
-  end
+  ```elixir
+  use Rewire
 
+  rewire App.ModuleToRewire, ModuleDep: Mock
+
+  # `ModuleToRewire` will use `Mock` now
+  end
+  ```
+
+  ## Options
+
+  `opts` is a keyword list:
+
+    * `as` - give the rewired module a different name
+
+    * any other item, like `ModuleDep: Mock`, will be interpreted as a mapping from one module to another
+  """
   defmacro rewire(rewire_expr, opts) do
     %{aliases: aliases} = __CALLER__
     Rewire.Alias.rewire_alias(rewire_expr, opts, aliases)
   end
 
+  @doc """
+  Macro that allows to rewire a module within a block.
+
+  ```elixir
+  use Rewire
+
+  rewire App.ModuleToRewire, ModuleDep: Mock do
+    # `ModuleToRewire` will use `Mock` now
+  end
+  ```
+
+  See `rewire/2` for a description of options.
+  """
   defmacro rewire(rewire_expr, opts, do: block) do
     %{aliases: aliases} = __CALLER__
     Rewire.Block.rewire_block(rewire_expr, opts, aliases, block)
