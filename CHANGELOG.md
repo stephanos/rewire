@@ -1,6 +1,12 @@
 # Changelog
 
 
+## [0.3.2] - 2020-10-02
+
+### Changed
+* support `as` for `rewire` block
+
+
 ## [0.3.1] - 2020-10-02
 
 ### Added
