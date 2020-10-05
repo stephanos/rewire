@@ -40,9 +40,9 @@ defmodule MyTest do
   import Mox
 
   test "greet" do
-    rewire Conversation, English: EnglishMock do       # within the block it is rewired
+    rewire Conversation, English: EnglishMock do  # within the block it is rewired
       stub(EnglishMock, :greet, fn -> "bonjour" end)
-      assert Conversation.start() == "bonjour"  # this uses EnglishMock now!
+      assert Conversation.start() == "bonjour"    # this uses EnglishMock now!
     end
   end
 end
