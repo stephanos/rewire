@@ -10,7 +10,7 @@ Keep your application code free from dependency injection and mocking concerns b
 
 ```elixir
 defmodule Conversation do
-  def start(), do: English.greet()          # the Converstaion module has a hard-wired dependency on the English module
+  def start(), do: English.greet()      # the Converstaion module has a hard-wired dependency on the English module
 end
 ```
 
@@ -22,7 +22,7 @@ defmodule MyTest do
   use Rewire
   import Mox
 
-  rewire Conversation, English: EnglishMock        # rewire the English dependency to the EnglishMock module (defined elsewhere)
+  rewire Conversation, English: EnglishMock     # rewire the English dependency to the EnglishMock module (defined elsewhere)
 
   test "greet" do
     stub(EnglishMock, :greet, fn -> "bonjour" end)
