@@ -4,13 +4,13 @@ rewire
 [![Build Status](https://travis-ci.org/stephanos/rewire.svg?branch=master)](https://travis-ci.org/stephanos/rewire)
 [![Hex.pm](https://img.shields.io/hexpm/v/rewire.svg)](https://hex.pm/packages/rewire)
 
-Keep your code free from dependency injection and mocking concerns by using `rewire` in your unit tests to stub out any module dependencies.
+Keep your application code free from dependency injection and mocking concerns by using `rewire` in your unit tests to inject module dependencies.
 
 ## Example
 
 ```elixir
 defmodule Conversation do
-  def start(), do: English.greet()              # the dependency is hard-wired
+  def start(), do: English.greet()          # the Converstaion module has a hard-wired dependency on the English module
 end
 ```
 
@@ -22,11 +22,11 @@ defmodule MyTest do
   use Rewire
   import Mox
 
-  rewire Conversation, English: Mock            # acts as an alias to the rewired module
+  rewire Conversation, English: EnglishMock        # rewire the English dependency to the EnglishMock module (defined elsewhere)
 
   test "greet" do
-    stub(Mock, :greet, fn -> "bonjour" end)
-    assert Conversation.start() == "bonjour"    # this uses Mock now!
+    stub(EnglishMock, :greet, fn -> "bonjour" end)
+    assert Conversation.start() == "bonjour"    # this uses EnglishMock now!
   end
 end
 ```
@@ -40,9 +40,9 @@ defmodule MyTest do
   import Mox
 
   test "greet" do
-    rewire Conversation, English: Mock do       # within the block it is rewired
-      stub(Mock, :greet, fn -> "bonjour" end)
-      assert Conversation.start() == "bonjour"  # this uses Mock now!
+    rewire Conversation, English: EnglishMock do       # within the block it is rewired
+      stub(EnglishMock, :greet, fn -> "bonjour" end)
+      assert Conversation.start() == "bonjour"  # this uses EnglishMock now!
     end
   end
 end
@@ -51,16 +51,16 @@ end
 You can also give the alias a different name using `as`:
 
 ```elixir
-  rewire Conversation, English: Mock, as: SmallTalk
+  rewire Conversation, English: EnglishMock, as: SmallTalk
 ```
 
 ## FAQ
 
 **Why?**
 
-I haven't been happy with the existing tradeoffs of making a module with dependencies easily unit testable.
+I have lots of modules that depend on other modules, and I haven't been happy with the existing tradeoffs of injecting those dependencies so I can alter their behavior in my unit tests.
 
-If you don't use `mox`, the best approach known to me is to pass-in dependencies via a function's parameters:
+For example, if you don't use `mox`, the best approach known to me is to pass-in dependencies via a function's parameters:
 
 ```elixir
 defmodule Conversation do
@@ -68,9 +68,14 @@ defmodule Conversation do
 end
 ```
 
-But this will (1) litter your code with testing concerns, (2) make navigation in your editor harder, (3) searches for usages of the module more difficult and (4) make it impossible for the compiler to warn you in case `greet/0` doesn't exist on the `English` module
+The downsides to that approach are:
 
-If you use `mox`, there's a slightly better approach:
+  1) Your application code is now littered with testing concerns.
+  2) Navigation in your code editor doesn't work as well.
+  3) Searches for usages of the module more difficult.
+  4) The compiler is not able to warn you in case `greet/0` doesn't exist on the `English` module.
+
+If you use `mox` for your mocking, there's a slightly better approach:
 
 ```elixir
 defmodule Conversation do
@@ -91,4 +96,4 @@ Possibly just a little? Conclusive data isn't in yet.
 
 **Does it work with `mox`?**
 
-It works great with [mox](https://github.com/dashbitco/mox) since `rewire` doesn't care about where the replacement module comes from. `rewire` and `mox` are a great pair!
+It works great with [mox](https://github.com/dashbitco/mox) since `rewire` focueses on the _injection_ and doesn't care about where the _mock_ module comes from. `rewire` and `mox` are a great pair!
