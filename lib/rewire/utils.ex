@@ -2,13 +2,20 @@ defmodule Rewire.Utils do
   @moduledoc """
   """
 
-  def parse_opts(opts, aliases) do
-    Enum.reduce(opts, %{overrides: %{}}, fn
-      {:as, {:__aliases__, _, new_name}}, acc ->
-        Map.put(acc, :as, new_name)
+  def parse_opts(old_module_ast, opts, aliases) do
+    old_module_ast = resolve_alias(old_module_ast, aliases)
 
-      {:as, new_name}, acc ->
-        Map.put(acc, :as, new_name)
+    default_opts = %{
+      old_module_ast: old_module_ast,
+      new_module_ast: gen_new_module_ast(old_module_ast),
+      module_shorthand: List.last(old_module_ast),
+      overrides: %{}
+    }
+
+    # Customize rewire options from user input.
+    Enum.reduce(opts, default_opts, fn
+      {:as, {:__aliases__, _, [new_name]}}, acc ->
+        Map.put(acc, :module_shorthand, new_name)
 
       # Here the module to replace and the replacement are defined as fully-quallified aliases.
       {{:__aliases__, _, module_ast}, {:__aliases__, _, replacement_module_ast}}, acc ->
@@ -28,12 +35,12 @@ defmodule Rewire.Utils do
   end
 
   # Determine generated module's name. It has to be a unique name.
-  def gen_new_module_ast(rewire_module_ast) do
+  def gen_new_module_ast(old_module_ast) do
     context_id = "R#{Enum.random(0..10_000)}" |> String.to_atom()
-    rewire_module_ast ++ [context_id]
+    old_module_ast ++ [context_id]
   end
 
-  def resolve_alias(module_ast, aliases) do
+  defp resolve_alias(module_ast, aliases) do
     Enum.find_value(aliases, fn
       {alias_mod, full_mod_ast} ->
         if module_to_ast(alias_mod) == module_ast do
@@ -44,9 +51,14 @@ defmodule Rewire.Utils do
     end) || module_ast
   end
 
-  def module_ast_to_name(ast), do: ast |> Enum.map_join(".", &Atom.to_string/1)
-  def module_to_name(mod), do: mod |> Atom.to_string()
-  def module_to_ast(mod), do: mod |> module_to_name() |> module_name_to_ast()
+  def module_ast_to_name(ast),
+    do: ast |> Enum.map_join(".", &Atom.to_string/1)
+
+  def module_to_name(mod),
+    do: mod |> Atom.to_string()
+
+  def module_to_ast(mod),
+    do: mod |> module_to_name() |> module_name_to_ast()
 
   def module_name_to_ast(name),
     do: name |> String.trim_leading("Elixir.") |> String.split(".") |> Enum.map(&String.to_atom/1)

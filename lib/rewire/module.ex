@@ -4,7 +4,9 @@ defmodule Rewire.Module do
 
   import Rewire.Utils
 
-  def rewire_module(mod, opts) do
+  def rewire_module(module_ast, opts) do
+    mod = "Elixir.#{module_ast_to_name(module_ast)}" |> String.to_atom()
+
     # We need to make sure that the module to rewire actually exists first.
     if Code.ensure_compiled(mod) == {:error, :nofile} do
       raise CompileError,

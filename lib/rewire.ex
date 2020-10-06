@@ -67,6 +67,8 @@ defmodule Rewire do
   ```
   """
 
+  import Rewire.Utils
+
   defmacro __using__(_) do
     quote do
       # Needed for importing the `rewire` macro.
@@ -94,9 +96,10 @@ defmodule Rewire do
 
     * any other item, like `ModuleDep: Mock`, will be interpreted as a mapping from one module to another
   """
-  defmacro rewire(rewire_expr, opts) do
+  defmacro rewire({:__aliases__, _, rewire_module_ast}, opts) do
     %{aliases: aliases} = __CALLER__
-    Rewire.Alias.rewire_alias(rewire_expr, opts, aliases)
+    opts = parse_opts(rewire_module_ast, opts, aliases)
+    Rewire.Alias.rewire_alias(opts)
   end
 
   @doc """
@@ -112,8 +115,9 @@ defmodule Rewire do
 
   See `rewire/2` for a description of options.
   """
-  defmacro rewire(rewire_expr, opts, do: block) do
+  defmacro rewire({:__aliases__, _, rewire_module_ast}, opts, do: block) do
     %{aliases: aliases} = __CALLER__
-    Rewire.Block.rewire_block(rewire_expr, opts, aliases, block)
+    opts = parse_opts(rewire_module_ast, opts, aliases)
+    Rewire.Block.rewire_block(opts, block)
   end
 end

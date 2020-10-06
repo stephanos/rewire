@@ -62,5 +62,19 @@ defmodule RewireBlockErrorTest do
         end
       end
     end
+
+    test "if option is invalid" do
+      assert_compile_time_raise "unknown option passed to `rewire`: :invalid_option" do
+        defmodule ModuleInvalidOption do
+          use Rewire
+
+          def func do
+            rewire Rewire.ModuleWithAliasedDependency, invalid_option: true do
+              # nothing
+            end
+          end
+        end
+      end
+    end
   end
 end
