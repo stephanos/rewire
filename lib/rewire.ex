@@ -30,7 +30,7 @@ defmodule Rewire do
     # rewire dependency on `English` to `EnglishMock`
     rewire Conversation, English: EnglishMock
 
-    test "greet" do
+    test "start/0" do
       stub(EnglishMock, :greet, fn -> "g'day" end)
       assert Conversation.start() == "g'day"          # using the mock!
     end
@@ -51,7 +51,7 @@ defmodule Rewire do
     use Rewire
     import Mox
 
-    test "greet" do
+    test "start/0" do
       rewire Conversation, English: EnglishMock do
         # within the block `Conversation` is rewired
         stub(EnglishMock, :greet, fn -> "g'day" end)
