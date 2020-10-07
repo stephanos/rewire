@@ -32,7 +32,7 @@ defmodule MyTest do
   use Rewire
   import Mox
 
-  # rewire dependency on `English` to the `EnglishMock`
+  # rewire dependency on `English` to `EnglishMock`
   rewire Conversation, English: EnglishMock
 
   test "greet" do
