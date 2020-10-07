@@ -3,15 +3,23 @@ defmodule Rewire do
   Rewire is a libary for replacing hard-wired dependencies of the module your unit testing.
   This allows you to keep your production code free of any unit testing-specific concerns.
 
-  ## Example
+  ## Usage
 
   ```elixir
+  # this module has a hard-wired dependency on the `English` module
   defmodule Conversation do
-    def start(), do: English.greet()              # the dependency is hard-wired
+    def start(), do: English.greet()
   end
   ```
 
-  You can rewire the dependency with a mock, using `mox` for example:
+  If you define the following `mox` mock:
+
+  ```elixir
+  # defining the mock in test_helper.exs
+  Mox.defmock(EnglishMock, for: English)
+  ```
+
+  You can rewire the dependency in your unit test:
 
   ```elixir
   defmodule MyTest do
@@ -19,28 +27,20 @@ defmodule Rewire do
     use Rewire
     import Mox
 
-    rewire Conversation, English: Mock            # acts as an alias to the rewired module
+    # rewire dependency on `English` to `EnglishMock`
+    rewire Conversation, English: EnglishMock
 
     test "greet" do
-      stub(Mock, :greet, fn -> "bonjour" end)
-      assert Conversation.start() == "bonjour"    # this uses Mock now!
+      stub(EnglishMock, :greet, fn -> "g'day" end)
+      assert Conversation.start() == "g'day"          # using the mock!
     end
   end
   ```
 
+  You can also give the alias a different name using `as`:
+
   ```elixir
-  defmodule MyTest do
-    use ExUnit.Case
-    use Rewire
-    import Mox
-
-    rewire Conversation, English: Mock            # acts as an alias to the rewired module
-
-    test "greet" do
-      stub(Mock, :greet, fn -> "bonjour" end)
-      assert Conversation.start() == "bonjour"    # this uses Mock now!
-    end
-  end
+    rewire Conversation, English: EnglishMock, as: SmallTalk
   ```
 
   Alternatively, you can also rewire a module on a test-by-test basis:
@@ -52,9 +52,10 @@ defmodule Rewire do
     import Mox
 
     test "greet" do
-      rewire Conversation, English: Mock do       # within the block it is rewired
-        stub(Mock, :greet, fn -> "bonjour" end)
-        assert Conversation.start() == "bonjour"  # this uses Mock now!
+      rewire Conversation, English: EnglishMock do
+        # within the block `Conversation` is rewired
+        stub(EnglishMock, :greet, fn -> "g'day" end)
+        assert Conversation.start() == "g'day"        # using the mock!
       end
     end
   end
