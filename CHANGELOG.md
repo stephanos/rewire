@@ -1,6 +1,13 @@
 # Changelog
 
 
+## [0.3.3] - 2020-10-06
+
+### Changed
+* internal refactorings
+* improved documentation
+
+
 ## [0.3.2] - 2020-10-02
 
 ### Changed
