@@ -32,7 +32,7 @@ defmodule Rewire do
 
     test "greet" do
       stub(EnglishMock, :greet, fn -> "g'day" end)
-      assert Conversation.start() == "g'day"          # rewired!
+      assert Conversation.start() == "g'day"          # using the mock!
     end
   end
   ```
@@ -55,7 +55,7 @@ defmodule Rewire do
       rewire Conversation, English: EnglishMock do
         # within the block `Conversation` is rewired
         stub(EnglishMock, :greet, fn -> "g'day" end)
-        assert Conversation.start() == "g'day"        # rewired!
+        assert Conversation.start() == "g'day"        # using the mock!
       end
     end
   end
