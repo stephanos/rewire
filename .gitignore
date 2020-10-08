@@ -22,4 +22,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 rewire-*.tar
 
+*.debug
 TODO
