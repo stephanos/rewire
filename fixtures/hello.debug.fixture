@@ -1,0 +1,36 @@
+Rewire Elixir.Rewire.Hello
+====
+
+[ AST ]
+
+{:defmodule, [line: 1],
+ [
+   {:__aliases__, [line: 1], [:Rewire, :Hello, :R]},
+   [
+     do: {:__block__, [],
+      [
+        {:@, [line: 2],
+         [
+           {:callback, [line: 2],
+            [
+              {:"::", [line: 2],
+               [
+                 {:hello, [line: 2], []},
+                 {{:., [line: 2], [{:__aliases__, [line: 2], [:String]}, :t]},
+                  [line: 2], []}
+               ]}
+            ]}
+         ]},
+        {:def, [line: 3], [{:hello, [line: 3], []}, [do: "hello"]]}
+      ]}
+   ]
+ ]}
+
+[ CODE ]
+
+defmodule(Rewire.Hello.R) do
+  @callback(hello() :: String.t())
+  def(hello()) do
+    "hello"
+  end
+end

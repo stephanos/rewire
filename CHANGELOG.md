@@ -1,6 +1,12 @@
 # Changelog
 
 
+## [0.4.0] - 2020-10-07
+
+### Added
+* added debug option
+
+
 ## [0.3.3] - 2020-10-06
 
 ### Changed

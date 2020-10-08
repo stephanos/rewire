@@ -37,6 +37,21 @@ defmodule Rewire.Module do
         opts
       )
 
+    # Optional debug output
+    if Map.get(opts, :debug) do
+      content =
+        [
+          "Rewire #{module_to_name(mod)}\n====",
+          "[ AST ]",
+          inspect(new_ast, pretty: true),
+          "[ CODE ]",
+          Macro.to_string(quote do: unquote(new_ast)) <> "\n"
+        ]
+        |> Enum.join("\n\n")
+      debug_source_path = String.trim_trailing(source_path, ".ex") <> ".debug"
+      File.write!(debug_source_path, content)
+    end
+
     # Now evaluate the new module's AST so the file location is correct. (is there a better way?)
     Code.eval_quoted(new_ast, [], file: source_path)
     "Elixir.#{new_mod_name}" |> String.to_atom()

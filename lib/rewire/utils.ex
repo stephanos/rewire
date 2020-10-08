@@ -6,6 +6,7 @@ defmodule Rewire.Utils do
     old_module_ast = resolve_alias(old_module_ast, aliases)
 
     default_opts = %{
+      debug: false,
       old_module_ast: old_module_ast,
       new_module_ast: gen_new_module_ast(old_module_ast),
       module_shorthand: List.last(old_module_ast),
@@ -16,6 +17,9 @@ defmodule Rewire.Utils do
     Enum.reduce(opts, default_opts, fn
       {:as, {:__aliases__, _, [new_name]}}, acc ->
         Map.put(acc, :module_shorthand, new_name)
+
+      {:debug, debug}, acc ->
+        Map.put(acc, :debug, debug)
 
       # Here the module to replace and the replacement are defined as fully-quallified aliases.
       {{:__aliases__, _, module_ast}, {:__aliases__, _, replacement_module_ast}}, acc ->
