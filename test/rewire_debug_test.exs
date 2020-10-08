@@ -10,7 +10,7 @@ defmodule RewireDebugTest do
         |> String.replace(~r/\.R[0-9]+/, ".R")
       expected =
         File.read!("fixtures/hello.debug.fixture")
-        |> String.replace(":::", ":\"::\"")
+        |> String.replace(":::", ":\"::\"")  # needed for 1.9 and lower
       assert actual == expected
     end
   end
