@@ -26,15 +26,14 @@ If you define a `mox` mock `EnglishMock` you can rewire the dependency in your u
 ```elixir
 defmodule MyTest do
   use ExUnit.Case
-  use Rewire
+  use Rewire                                     # (1) activate `rewire`
   import Mox
 
-  # rewire dependency on `English` to `EnglishMock`
-  rewire Conversation, English: EnglishMock
+  rewire Conversation, English: EnglishMock      # (2) rewire `English` to `EnglishMock`
 
   test "start/0" do
     stub(EnglishMock, :greet, fn -> "g'day" end)
-    assert Conversation.start() == "g'day"          # using the mock!
+    assert Conversation.start() == "g'day"       # (3) test using the mock
   end
 end
 ```
@@ -42,7 +41,7 @@ end
 You can also give the alias a different name using `as`:
 
 ```elixir
-  rewire Conversation, English: EnglishMock, as: SmallTalk
+rewire Conversation, English: EnglishMock, as: SmallTalk
 ```
 
 Alternatively, you can also rewire a module on a test-by-test basis:
@@ -50,14 +49,13 @@ Alternatively, you can also rewire a module on a test-by-test basis:
 ```elixir
 defmodule MyTest do
   use ExUnit.Case
-  use Rewire
+  use Rewire                                       # (1) activate `rewire`
   import Mox
 
   test "start/0" do
-    rewire Conversation, English: EnglishMock do
-      # within the block `Conversation` is rewired
+    rewire Conversation, English: EnglishMock do   # (2) only rewired inside the block
       stub(EnglishMock, :greet, fn -> "g'day" end)
-      assert Conversation.start() == "g'day"        # using the mock!
+      assert Conversation.start() == "g'day"       # (3) test using the mock
     end
   end
 end
