@@ -4,9 +4,9 @@ rewire
 [![Build Status](https://travis-ci.org/stephanos/rewire.svg?branch=master)](https://travis-ci.org/stephanos/rewire)
 [![Hex.pm](https://img.shields.io/hexpm/v/rewire.svg)](https://hex.pm/packages/rewire)
 
-Keep your application code free from dependency injection and mocking concerns by using `rewire` in your unit tests to inject module dependencies.
+`rewire` is a **depenency injection library**. Bring your own mock (`mox` is recommended)!
 
-If you use `mox`, which is strongly recommended, this will **reduce your entire mocking setup to 2 lines of code**: 1 to define the mock and 1 to rewire.
+It allows you to **keep your application code free from any testing concerns** and **dramatically reduce the code to set up your unit tests**.
 
 ## Usage
 
@@ -17,14 +17,7 @@ defmodule Conversation do
 end
 ```
 
-If you define the following `mox` mock:
-
-```elixir
-# defining the mock in test_helper.exs
-Mox.defmock(EnglishMock, for: English)
-```
-
-You can rewire the dependency in your unit test:
+If you define a `mox` mock `EnglishMock` you can rewire the dependency in your unit test:
 
 ```elixir
 defmodule MyTest do
@@ -65,6 +58,8 @@ defmodule MyTest do
   end
 end
 ```
+
+This example uses `mox`, but `rewire` is mocking library-agnostic.
 
 ## FAQ
 

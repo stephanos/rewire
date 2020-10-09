@@ -12,14 +12,7 @@ defmodule Rewire do
   end
   ```
 
-  If you define the following `mox` mock:
-
-  ```elixir
-  # defining the mock in test_helper.exs
-  Mox.defmock(EnglishMock, for: English)
-  ```
-
-  You can rewire the dependency in your unit test:
+  If you define a `mox` mock `EnglishMock` you can rewire the dependency in your unit test:
 
   ```elixir
   defmodule MyTest do
@@ -61,11 +54,7 @@ defmodule Rewire do
   end
   ```
 
-  You can also give the alias a different name using `as`:
-
-  ```elixir
-    rewire Conversation, English: Mock, as: SmallTalk
-  ```
+  This example uses `mox`, but `rewire` is mocking library-agnostic.
   """
 
   import Rewire.Utils
