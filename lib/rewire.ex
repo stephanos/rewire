@@ -1,9 +1,11 @@
 defmodule Rewire do
   @moduledoc """
   Rewire is a libary for replacing hard-wired dependencies of the module your unit testing.
-  This allows you to keep your production code free of any unit testing-specific concerns.
+  This keeps your production code free from any unit testing-specific concerns.
 
   ## Usage
+
+  Given a module such as this:
 
   ```elixir
   # this module has a hard-wired dependency on the `English` module

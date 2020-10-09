@@ -4,11 +4,15 @@ rewire
 [![Build Status](https://travis-ci.org/stephanos/rewire.svg?branch=master)](https://travis-ci.org/stephanos/rewire)
 [![Hex.pm](https://img.shields.io/hexpm/v/rewire.svg)](https://hex.pm/packages/rewire)
 
-`rewire` is a **depenency injection library**. Bring your own mock (`mox` is recommended)!
+`rewire` is a **depenency injection** library.
 
-It allows you to **keep your application code free from any testing concerns** and **dramatically reduce the code to set up your unit tests**.
+It keeps your application code completely free from testing concerns.
+
+And you can bring your own mock (`mox` is recommended).
 
 ## Usage
+
+Given a module such as this:
 
 ```elixir
 # this module has a hard-wired dependency on the `English` module
