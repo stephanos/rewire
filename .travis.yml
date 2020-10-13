@@ -3,13 +3,24 @@ jobs:
   include:
     - elixir: 1.7.4
       otp_release: 19.3
+      script:
+        - mix compile --warning-as-errors
+        - mix test
     - elixir: 1.8.2
       otp_release: 20.3
+      script:
+        - mix compile --warning-as-errors
+        - mix test
     - elixir: 1.9.4
       otp_release: 20.3
+      script:
+        - mix format --check-formatted
+        - mix compile --warning-as-errors
+        - mix test
     - elixir: 1.10.4
       otp_release: 23.0
-script:
-  - mix format --check-formatted
-  - mix compile --warning-as-errors
-  - mix test
+      script:
+        - mix format --check-formatted
+        - mix compile --warning-as-errors
+        - mix test
+

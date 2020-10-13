@@ -1,3 +1,3 @@
 defmodule Rewire.Goodbye do
-  def hello(), do: raise "goodbye"
+  def hello(), do: raise("goodbye")
 end
