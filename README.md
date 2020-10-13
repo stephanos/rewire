@@ -4,7 +4,7 @@ rewire
 [![Build Status](https://travis-ci.org/stephanos/rewire.svg?branch=master)](https://travis-ci.org/stephanos/rewire)
 [![Hex.pm](https://img.shields.io/hexpm/v/rewire.svg)](https://hex.pm/packages/rewire)
 
-`rewire` is a **depenency injection** library.
+`rewire` is a **dependency injection** library.
 
 It keeps your application code completely free from testing concerns.
 
