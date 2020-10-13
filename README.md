@@ -103,6 +103,14 @@ Simply put, `rewire` will create a copy of the module to rewire under a new name
 
 Possibly just a little? Conclusive data isn't in yet.
 
+**How do I stop `mix format` from adding parentheses around `rewire`?**
+
+Add this to your `.formatter.exs` file:
+
+```
+import_deps: [:rewire]
+```
+
 **Does it work with `mox`?**
 
 It works great with [mox](https://github.com/dashbitco/mox) since `rewire` focuses on the _injection_ and doesn't care about where the _mock_ module comes from. `rewire` and `mox` are a great pair!

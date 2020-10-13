@@ -48,6 +48,7 @@ defmodule Rewire.Module do
           Macro.to_string(quote do: unquote(new_ast)) <> "\n"
         ]
         |> Enum.join("\n\n")
+
       debug_source_path = String.trim_trailing(source_path, ".ex") <> ".debug"
       File.write!(debug_source_path, content)
     end

@@ -2,8 +2,8 @@ defmodule RewireAliasTest do
   use ExUnit.Case
   use Rewire
 
-  rewire(Rewire.ModuleWithDependency, Hello: Bonjour)
-  rewire(Rewire.ModuleWithDependency, Hello: Bonjour, as: RewiredModule)
+  rewire Rewire.ModuleWithDependency, Hello: Bonjour
+  rewire Rewire.ModuleWithDependency, Hello: Bonjour, as: RewiredModule
 
   describe "rewire as alias" do
     test "and use shorthand name" do

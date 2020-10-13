@@ -1,6 +1,12 @@
 # Changelog
 
 
+## [0.4.1] - 2020-10-12
+
+### Added
+* added mix formatter export
+
+
 ## [0.4.0] - 2020-10-07
 
 ### Added
