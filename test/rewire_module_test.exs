@@ -34,15 +34,36 @@ defmodule RewireModuleTest do
       refute output =~ "warning"
     end
 
-    # TODO
+    # test "a module with nested modules inside" do
+    #   output =
+    #     capture_io(:stderr, fn ->
+    #       original_module = Rewire.ModuleWithNested
+    #       original_nested_module = Rewire.ModuleWithNested.Nested
+    #       original_nested_nested_module = Rewire.ModuleWithNested.Nested.NestedNested
+
+    #       rewire Rewire.ModuleWithNested, as: ModuleWithNested do
+    #         assert ModuleWithNested != original_module
+    #         assert ModuleWithNested.hello() == original_module.hello()
+
+    #         assert ModuleWithNested.Nested != original_nested_module
+    #         assert ModuleWithNested.Nested.hello() == original_nested_module.hello()
+
+    #         assert ModuleWithNested.Nested.NestedNested != original_nested_nested_module
+    #         assert ModuleWithNested.Nested.NestedNested.hello() == original_nested_nested_module.hello()
+    #       end
+    #     end)
+
+    #   refute output =~ "warning"
+    # end
+
     # test "a nested module" do
     #   output =
     #     capture_io(:stderr, fn ->
     #       original_module = Rewire.ModuleWithNested.Nested.NestedNested
 
-    #       rewire Rewire.ModuleWithNested.Nested.NestedNested do
-    #         assert Rewire.ModuleWithNested.Nested.NestedNested != original_module
-    #         assert Rewire.ModuleWithNested.Nested.NestedNested.hello() == original_module.hello()
+    #       rewire Rewire.ModuleWithNested.Nested.NestedNested, as: NestedNested do
+    #         assert NestedNested != original_module
+    #         assert NestedNested.hello() == original_module.hello()
     #       end
     #     end)
 
