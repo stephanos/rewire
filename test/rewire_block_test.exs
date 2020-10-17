@@ -31,6 +31,17 @@ defmodule RewireBlockTest do
       refute output =~ "warning"
     end
 
+    test "nested, aliased dependency" do
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.ModuleWithNested.Nested.NestedNested, Hello: Bonjour do
+            assert NestedNested.hello() == "bonjour"
+          end
+        end)
+
+      refute output =~ "warning"
+    end
+
     test "renamed aliased dependency" do
       output =
         capture_io(:stderr, fn ->

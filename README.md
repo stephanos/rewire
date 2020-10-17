@@ -10,6 +10,18 @@ It keeps your application code completely free from testing concerns.
 
 And you can bring your own mock (`mox` is recommended).
 
+## Installation
+
+Just add `rewire` to your list of dependencies in mix.exs:
+
+```elixir
+def deps do
+  [
+    {:rewire, "~> 0.4", only: :test}
+  ]
+end
+```
+
 ## Usage
 
 Given a module such as this:

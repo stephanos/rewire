@@ -9,11 +9,9 @@ defmodule RewireModuleTest do
     test "a module" do
       output =
         capture_io(:stderr, fn ->
-          original_module = Rewire.Hello
-
-          rewire Rewire.Hello, as: Hello do
-            assert Hello != original_module
-            assert Hello.hello() == original_module.hello()
+          rewire Rewire.Hello, as: Rewired do
+            assert Rewired != Rewire.Hello
+            assert Rewired.hello() == Rewire.Hello.hello()
           end
         end)
 
@@ -23,30 +21,46 @@ defmodule RewireModuleTest do
     test "an aliased module" do
       output =
         capture_io(:stderr, fn ->
-          original_module = Hello
-
-          rewire Hello, as: Hello do
-            assert Hello != original_module
-            assert Hello.hello() == original_module.hello()
+          rewire Hello, as: Rewired do
+            assert Rewired != Hello
+            assert Rewired.hello() == Hello.hello()
           end
         end)
 
       refute output =~ "warning"
     end
 
-    # TODO
-    # test "a nested module" do
-    #   output =
-    #     capture_io(:stderr, fn ->
-    #       original_module = Rewire.ModuleWithNested.Nested.NestedNested
+    test "a module with a nested module inside" do
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.ModuleWithNested, as: Rewired do
+            assert Rewired != Rewire.ModuleWithNested
+            assert Rewired.hello() == Rewire.ModuleWithNested.hello()
 
-    #       rewire Rewire.ModuleWithNested.Nested.NestedNested do
-    #         assert Rewire.ModuleWithNested.Nested.NestedNested != original_module
-    #         assert Rewire.ModuleWithNested.Nested.NestedNested.hello() == original_module.hello()
-    #       end
-    #     end)
+            # nested ones have been copied, too
+            assert Rewired.Nested != Rewire.ModuleWithNested.Nested
+            assert Rewired.Nested.NestedNested != Rewire.ModuleWithNested.Nested.NestedNested
+          end
+        end)
 
-    #   refute output =~ "warning"
-    # end
+      refute output =~ "warning"
+    end
+
+    test "a nested module" do
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.ModuleWithNested.Nested, as: Rewired do
+            assert Rewired != Rewire.ModuleWithNested.Nested
+            assert Rewired.hello() == Rewire.ModuleWithNested.Nested.hello()
+          end
+
+          rewire Rewire.ModuleWithNested.Nested.NestedNested, as: Rewired do
+            assert Rewired != Rewire.ModuleWithNested.Nested.NestedNested
+            assert Rewired.hello() == Rewire.ModuleWithNested.Nested.NestedNested.hello()
+          end
+        end)
+
+      refute output =~ "warning"
+    end
   end
 end

@@ -21,7 +21,7 @@ defmodule Rewire.Utils do
       {:debug, debug}, acc ->
         Map.put(acc, :debug, debug)
 
-      # Here the module to replace and the replacement are defined as fully-quallified aliases.
+      # Here the module to replace and the replacement are defined as fully-qualified aliases.
       {{:__aliases__, _, module_ast}, {:__aliases__, _, replacement_module_ast}}, acc ->
         put_in(acc, [:overrides, module_ast], resolve_alias(replacement_module_ast, aliases))
 

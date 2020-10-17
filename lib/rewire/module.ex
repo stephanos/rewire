@@ -25,10 +25,11 @@ defmodule Rewire.Module do
     source = File.read!(source_path)
     {:ok, ast} = Code.string_to_quoted(source)
 
-    # Create a copy of the AST with a new module name and replaced dependencies.
+    # Determine new generated module name.
     old_mod_name = mod |> Atom.to_string() |> String.trim_leading("Elixir.")
     new_mod_name = Map.fetch!(opts, :new_module_ast) |> module_ast_to_name()
 
+    # Traverse through AST and create new module with rewired dependencies.
     new_ast =
       traverse(
         ast,
@@ -37,7 +38,7 @@ defmodule Rewire.Module do
         opts
       )
 
-    # Optional debug output
+    # If enabled, save debug output.
     if Map.get(opts, :debug) do
       content =
         [
@@ -53,7 +54,7 @@ defmodule Rewire.Module do
       File.write!(debug_source_path, content)
     end
 
-    # Now evaluate the new module's AST so the file location is correct. (is there a better way?)
+    # Now evaluate the new module's AST so the file location is correct.
     Code.eval_quoted(new_ast, [], file: source_path)
     "Elixir.#{new_mod_name}" |> String.to_atom()
   end
@@ -63,7 +64,7 @@ defmodule Rewire.Module do
       %{
         overrides: %{},
         overrides_completed: [],
-        parent_module_ast: [],
+        module_parent_ast: [],
         old_module_ast: old_module_ast,
         new_module_ast: new_module_ast
       }
@@ -71,6 +72,7 @@ defmodule Rewire.Module do
 
     pre = fn expr, acc -> rewrite(expr, acc) end
     post = fn expr, acc -> {expr, acc} end
+
     {new_ast, new_acc} = Macro.traverse(ast, acc, pre, post)
 
     %{overrides: overrides} = acc
@@ -82,40 +84,40 @@ defmodule Rewire.Module do
 
   # Changes the rewired module's name to prevent a naming collision.
   defp rewrite(
-         {:defmodule, l1, [{:__aliases__, l2, module_ast} | rest]},
+         {:defmodule, l1, [{:__aliases__, l2, module_ast}, rest]},
          acc = %{
-           old_module_ast: old_module_ast,
            new_module_ast: new_module_ast,
-           parent_module_ast: parent_module_ast
+           old_module_ast: old_module_ast,
+           module_parent_ast: module_parent_ast
          }
        ) do
-    full_module_ast = parent_module_ast ++ module_ast
+    full_module_ast = module_parent_ast ++ module_ast
 
     cond do
+      # We found the module to rewire,
+      # let's create a copy with a new name.
       full_module_ast == old_module_ast ->
-        # We found the module to rewire,
-        # let's generate a new one with a unique name.
-        {{:defmodule, l1, [{:__aliases__, l2, new_module_ast} | rest]}, acc}
+        {{:defmodule, l1, [{:__aliases__, l2, new_module_ast}, rest]},
+         %{acc | module_parent_ast: module_parent_ast ++ old_module_ast}}
 
-      List.starts_with?(full_module_ast, old_module_ast) ->
-        # We found a nested module within the module to rewrite,
-        # let's rewire that one too since it might contain references to the parent module.
-        # TODO
-        {[], acc}
-
+      # We found a parent module of the module to rewrite,
+      # let's extract all nested modules and continue.
       List.starts_with?(old_module_ast, full_module_ast) ->
-        # We (possibly) found a wrapper module around the module to rewrite,
-        # let's look ahead to find the nested module so we can skip the rest.
-        # TODO
-        {[], acc}
+        [do: {:__block__, _, body}] = rest
 
+        {body
+         |> Enum.filter(fn
+           {:defmodule, _, _} -> true
+           _ -> false
+         end), %{acc | module_parent_ast: full_module_ast}}
+
+      # Skip module entirely because it would just be redefined, causing a warning.
       true ->
-        # Skip module entirely because it would just be redefined, causing a warning.
         {[], acc}
     end
   end
 
-  # Removes the rewired module's aliases that point to the replaced modules.
+  # Removes a single alias (ie `alias A.A`) pointing to an overriden module dependency. Keeps the others.
   defp rewrite(
          expr = {:alias, _, [{:__aliases__, _, module_ast}]},
          acc = %{overrides: overrides}
@@ -126,6 +128,7 @@ defmodule Rewire.Module do
     end
   end
 
+  # Removes a multi-aliases (ie `alias A.{B, C}`) overriden module dependencies. Keeps the others.
   defp rewrite(
          {:alias, _, [{{:., _, [{:__aliases__, _, root_module_ast}, :{}]}, _, aliases}]},
          acc

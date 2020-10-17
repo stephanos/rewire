@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.5.0] - 2020-10-17
+
+### Added
+* support for rewiring nested modules
+
 
 ## [0.4.1] - 2020-10-12
 
