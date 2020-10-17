@@ -19,10 +19,6 @@ defmodule Rewire.Block do
     end
   end
 
-  def rewire_block(_expr, _opts, _block) do
-    raise CompileError, description: "unable to rewire: the first argument must be a module"
-  end
-
   defp rewire_test_block(block, module_shorthand, new_module_ast) do
     Macro.prewalk(block, fn
       {:__aliases__, meta, [^module_shorthand]} ->

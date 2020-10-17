@@ -4,14 +4,15 @@ defmodule Rewire.Module do
 
   import Rewire.Utils
 
-  def rewire_module(module_ast, opts) do
+  def rewire_module(module_ast, %{file: file, line: line} = opts) do
     mod = "Elixir.#{module_ast_to_name(module_ast)}" |> String.to_atom()
 
     # We need to make sure that the module to rewire actually exists first.
     if Code.ensure_compiled(mod) == {:error, :nofile} do
       raise CompileError,
-        description:
-          "unable to rewire '#{module_to_name(mod)}': cannot find module - does it exist?"
+        description: "unable to rewire '#{module_to_name(mod)}': cannot find module",
+        file: file,
+        line: line
     end
 
     # Find module's source file path.
@@ -77,7 +78,7 @@ defmodule Rewire.Module do
 
     %{overrides: overrides} = acc
     %{overrides_completed: overrides_completed} = new_acc
-    report_broken_overrides(old_module_ast, Map.keys(overrides), overrides_completed)
+    report_broken_overrides(old_module_ast, Map.keys(overrides), overrides_completed, opts)
 
     new_ast
   end
@@ -171,7 +172,10 @@ defmodule Rewire.Module do
     end)
   end
 
-  defp report_broken_overrides(module_ast, overrides, overrides_completed) do
+  defp report_broken_overrides(module_ast, overrides, overrides_completed, %{
+         file: file,
+         line: line
+       }) do
     case overrides -- overrides_completed do
       [] ->
         :do_nothing
@@ -181,7 +185,9 @@ defmodule Rewire.Module do
           description:
             "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{
               module_ast_to_name(unused_override)
-            }' not found"
+            }' not found",
+          file: file,
+          line: line
 
       unused_overrides ->
         dependency_list =
@@ -192,7 +198,9 @@ defmodule Rewire.Module do
 
         raise CompileError,
           description:
-            "unable to rewire '#{module_ast_to_name(module_ast)}': dependencies #{dependency_list} not found"
+            "unable to rewire '#{module_ast_to_name(module_ast)}': dependencies #{dependency_list} not found",
+          file: file,
+          line: line
     end
   end
 end

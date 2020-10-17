@@ -2,11 +2,13 @@ defmodule Rewire.Utils do
   @moduledoc """
   """
 
-  def parse_opts(old_module_ast, opts, aliases) do
+  def parse_opts(old_module_ast, opts, %{aliases: aliases, file: file, line: line} = caller) do
     old_module_ast = resolve_alias(old_module_ast, aliases)
 
     default_opts = %{
       debug: false,
+      file: file,
+      line: line,
       old_module_ast: old_module_ast,
       new_module_ast: gen_new_module_ast(old_module_ast),
       module_shorthand: List.last(old_module_ast),
@@ -34,7 +36,10 @@ defmodule Rewire.Utils do
         )
 
       {k, _}, _acc ->
-        raise CompileError, description: "unknown option passed to `rewire`: #{inspect(k)}"
+        raise CompileError,
+          description: "unknown option passed to `rewire`: #{inspect(k)}",
+          file: file,
+          line: line
     end)
   end
 

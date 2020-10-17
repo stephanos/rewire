@@ -87,8 +87,7 @@ defmodule Rewire do
     * any other item, like `ModuleDep: Mock`, will be interpreted as a mapping from one module to another
   """
   defmacro rewire({:__aliases__, _, rewire_module_ast}, opts) do
-    %{aliases: aliases} = __CALLER__
-    opts = parse_opts(rewire_module_ast, opts, aliases)
+    opts = parse_opts(rewire_module_ast, opts, __CALLER__)
     Rewire.Alias.rewire_alias(opts)
   end
 
@@ -106,8 +105,14 @@ defmodule Rewire do
   See `rewire/2` for a description of options.
   """
   defmacro rewire({:__aliases__, _, rewire_module_ast}, opts, do: block) do
-    %{aliases: aliases} = __CALLER__
-    opts = parse_opts(rewire_module_ast, opts, aliases)
+    opts = parse_opts(rewire_module_ast, opts, __CALLER__)
     Rewire.Block.rewire_block(opts, block)
+  end
+
+  defmacro rewire(_, _opts, do: _block) do
+    raise CompileError,
+      description: "unable to rewire: the first argument must be a module",
+      file: __CALLER__.file,
+      line: __CALLER__.line
   end
 end
