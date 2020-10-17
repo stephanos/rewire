@@ -115,6 +115,10 @@ Simply put, `rewire` will create a copy of the module to rewire under a new name
 
 Possibly just a little? Conclusive data isn't in yet.
 
+**Will test coverage be reported correctly?**
+
+Sadly, not yet. But that is fixable. See [issue #10](https://github.com/stephanos/rewire/issues/10).
+
 **How do I stop `mix format` from adding parentheses around `rewire`?**
 
 Add this to your `.formatter.exs` file:
