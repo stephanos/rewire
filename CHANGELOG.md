@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.2] - 2020-10-17
+
+### Changed
+* improved documentation
+
+
 ## [0.5.1] - 2020-10-17
 
 ### Added
