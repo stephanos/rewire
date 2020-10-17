@@ -66,6 +66,18 @@ defmodule Rewire do
     end
   end
 
+  @doc false
+  defmacro rewire({:__aliases__, _, _}),
+    do: invalid_rewire("options are missing", __CALLER__)
+
+  @doc false
+  defmacro rewire(_),
+    do: invalid_rewire("the first argument must be a module", __CALLER__)
+
+  @doc false
+  defmacro rewire({:__aliases__, _, _}, do: _block),
+    do: invalid_rewire("options are missing", __CALLER__)
+
   @doc """
   Macro that allows to rewire (and alias) a module.
 
@@ -109,10 +121,15 @@ defmodule Rewire do
     Rewire.Block.rewire_block(opts, block)
   end
 
-  defmacro rewire(_, _opts, do: _block) do
-    raise CompileError,
-      description: "unable to rewire: the first argument must be a module",
-      file: __CALLER__.file,
-      line: __CALLER__.line
-  end
+  @doc false
+  defmacro rewire(_, _opts, do: _block),
+    do: invalid_rewire("the first argument must be a module", __CALLER__)
+
+  defp invalid_rewire(reason, %{file: file, line: line}),
+    do:
+      raise(CompileError,
+        description: "unable to rewire: #{reason}",
+        file: file,
+        line: line
+      )
 end
