@@ -34,8 +34,8 @@ defmodule RewireBlockTest do
     test "nested, aliased dependency" do
       output =
         capture_io(:stderr, fn ->
-          rewire Rewire.ModuleWithNestedDependency, Hello: Bonjour, debug: true do
-            assert ModuleWithNestedDependency.hello() == "bonjour"
+          rewire Rewire.ModuleWithNested.Nested.NestedNested, Hello: Bonjour do
+            assert NestedNested.hello() == "bonjour"
           end
         end)
 
