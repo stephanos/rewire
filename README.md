@@ -76,7 +76,35 @@ Alternatively, you can also rewire a module inside a block:
 
 ## FAQ
 
-**Why?**
+**Will it work with `async: true`?**
+
+Yes! Instead of overriding the module globally - like `meck` - it creates a _copy_ for each test.
+
+**Does it work with `mox`?**
+
+It works great with [mox](https://github.com/dashbitco/mox) since `rewire` focuses on the _injection_ and doesn't care about where the _mock_ module comes from. `rewire` and `mox` are a great pair!
+
+**Will that slow down my tests?**
+
+Maybe just a little? Conclusive data from a larger code base isn't in yet.
+
+**Will test coverage be reported correctly?**
+
+Sadly, not yet. But that is fixable. See [issue #10](https://github.com/stephanos/rewire/issues/10).
+
+**Will it work with stateful modules?**
+
+If the stateful module is started _after_ it has been rewired, it will work fine. However, if the module is started _before_ - like a Phoenix controller - it won't work since it can't be rewired anymore. `rewire` is best used for unit tests.
+
+**How do I stop `mix format` from adding parentheses around `rewire`?**
+
+Add this to your `.formatter.exs` file:
+
+```
+import_deps: [:rewire]
+```
+
+**Why do I need this?**
 
 I haven't been happy with the existing tradeoffs of injecting dependencies into Elixir modules that allows me to alter their behavior in my unit tests.
 
@@ -109,23 +137,3 @@ In this approach we use the app's config to replace a module with a `mox` mock d
 **Witchcraft! How does this work??**
 
 Simply put, `rewire` will create a copy of the module to rewire under a new name, replacing all hard-coded module references that should be changed in the process. Plus, it rewrites the test code in the `rewire` block to use the generated module instead.
-
-**Will that slow down my tests?**
-
-Possibly just a little? Conclusive data isn't in yet.
-
-**Will test coverage be reported correctly?**
-
-Sadly, not yet. But that is fixable. See [issue #10](https://github.com/stephanos/rewire/issues/10).
-
-**How do I stop `mix format` from adding parentheses around `rewire`?**
-
-Add this to your `.formatter.exs` file:
-
-```
-import_deps: [:rewire]
-```
-
-**Does it work with `mox`?**
-
-It works great with [mox](https://github.com/dashbitco/mox) since `rewire` focuses on the _injection_ and doesn't care about where the _mock_ module comes from. `rewire` and `mox` are a great pair!
