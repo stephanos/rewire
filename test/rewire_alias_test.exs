@@ -2,19 +2,27 @@ defmodule RewireAliasTest do
   use ExUnit.Case
   use Rewire
 
-  rewire Rewire.ModuleWithDependency, Hello: Bonjour
-  rewire Rewire.ModuleWithDependency, Hello: Bonjour, as: RewiredModule
-
   describe "rewire as alias" do
     test "and use shorthand name" do
+      rewire Rewire.ModuleWithDependency, Hello: Bonjour
       assert ModuleWithDependency.hello() == "bonjour"
     end
 
     test "and use renamed alias" do
+      rewire Rewire.ModuleWithDependency, Hello: Bonjour, as: RewiredModule
       assert RewiredModule.hello() == "bonjour"
     end
 
-    test "however, the full path will stay the same" do
+    test "multiple ones" do
+      rewire Rewire.ModuleWithNested.Nested.NestedNested, Hello: Bonjour
+      rewire Rewire.ModuleWithNested.Nested, NestedNested: NestedNested
+      rewire Rewire.ModuleWithNested, Nested: Nested
+
+      assert ModuleWithNested.hello() == "bonjour"
+    end
+
+    test "however, the original module will stay the same" do
+      rewire Rewire.ModuleWithDependency, Hello: Bonjour
       assert Rewire.ModuleWithDependency.hello() == "hello"
     end
   end
