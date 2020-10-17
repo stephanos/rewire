@@ -76,6 +76,21 @@ defmodule RewireBlockTest do
       refute output =~ "warning"
     end
 
+    test "multiple modules" do
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.ModuleWithNested.Nested.NestedNested, Hello: Bonjour do
+            rewire Rewire.ModuleWithNested.Nested, NestedNested: NestedNested do
+              rewire Rewire.ModuleWithNested, Nested: Nested do
+                assert ModuleWithNested.hello() == "bonjour"
+              end
+            end
+          end
+        end)
+
+      refute output =~ "warning"
+    end
+
     test "stracktrace still points to original file location" do
       try do
         rewire Rewire.Goodbye, as: Goodbye do
