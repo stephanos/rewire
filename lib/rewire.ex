@@ -31,30 +31,29 @@ defmodule Rewire do
   end
   ```
 
+  This example uses `mox`, but `rewire` is mocking library-agnostic.
+
+  You can use multiple `rewire`s and multiple overrides:
+
+  ```elixir
+    rewire Conversation, English: EnglishMock
+    rewire OnlineConversation, Email: EmailMock, Chat: ChatMock
+  ```
+
   You can also give the alias a different name using `as`:
 
   ```elixir
-  rewire Conversation, English: EnglishMock, as: SmallTalk
+    rewire Conversation, English: EnglishMock, as: SmallTalk
   ```
 
-  Alternatively, you can also rewire a module on a test-by-test basis:
+  Alternatively, you can also rewire a module inside a block:
 
   ```elixir
-  defmodule MyTest do
-    use ExUnit.Case
-    use Rewire                                       # (1) activate `rewire`
-    import Mox
-
-    test "start/0" do
-      rewire Conversation, English: EnglishMock do   # (2) only rewired inside the block
-        stub(EnglishMock, :greet, fn -> "g'day" end)
-        assert Conversation.start() == "g'day"       # (3) test using the mock
-      end
+    rewire Conversation, English: EnglishMock do   # (1) only rewired inside the block
+      stub(EnglishMock, :greet, fn -> "g'day" end)
+      assert Conversation.start() == "g'day"       # (2) test using the mock
     end
-  end
   ```
-
-  This example uses `mox`, but `rewire` is mocking library-agnostic.
   """
 
   import Rewire.Utils
