@@ -93,10 +93,6 @@ defmodule Rewire.Module do
        ) do
     full_module_ast = module_parent_ast ++ module_ast
 
-    # IO.inspect(new_module_ast, label: "new")
-    # IO.inspect(full_module_ast, label: "cur")
-    # IO.inspect(old_module_ast, label: "old")
-
     cond do
       # We found the module to rewire,
       # let's create a copy with a new name.
