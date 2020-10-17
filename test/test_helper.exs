@@ -25,6 +25,8 @@ defmodule TestHelpers do
     quote do
       assert unquote(actual_exception.__struct__) == unquote(CompileError)
       assert unquote(actual_exception.description) == unquote(expected_message)
+      assert unquote(actual_exception.file)
+      assert unquote(actual_exception.line)
     end
   end
 end
