@@ -2,7 +2,7 @@ defmodule Rewire.Utils do
   @moduledoc """
   """
 
-  def parse_opts(old_module_ast, opts, %{aliases: aliases, file: file, line: line} = caller) do
+  def parse_opts(old_module_ast, opts, %{aliases: aliases, file: file, line: line}) do
     old_module_ast = resolve_alias(old_module_ast, aliases)
 
     default_opts = %{
