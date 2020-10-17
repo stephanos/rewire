@@ -1,6 +1,5 @@
 defmodule Rewire.Utils do
-  @moduledoc """
-  """
+  @moduledoc false
 
   def parse_opts(old_module_ast, opts, %{aliases: aliases, file: file, line: line}) do
     old_module_ast = resolve_alias(old_module_ast, aliases)

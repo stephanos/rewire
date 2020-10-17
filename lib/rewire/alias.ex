@@ -1,6 +1,5 @@
 defmodule Rewire.Alias do
-  @moduledoc """
-  """
+  @moduledoc false
 
   def rewire_alias(
         opts = %{

@@ -1,6 +1,5 @@
 defmodule Rewire.Module do
-  @moduledoc """
-  """
+  @moduledoc false
 
   import Rewire.Utils
 

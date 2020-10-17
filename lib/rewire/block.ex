@@ -1,6 +1,5 @@
 defmodule Rewire.Block do
-  @moduledoc """
-  """
+  @moduledoc false
 
   def rewire_block(
         opts = %{
