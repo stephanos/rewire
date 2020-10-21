@@ -1,6 +1,6 @@
 defmodule RewireAliasTest do
   use ExUnit.Case
-  use Rewire
+  import Rewire
 
   describe "rewire as alias" do
     test "and use shorthand name" do

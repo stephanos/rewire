@@ -1,6 +1,6 @@
 defmodule RewireBlockTest do
   use ExUnit.Case
-  use Rewire
+  import Rewire
 
   import ExUnit.CaptureIO
 

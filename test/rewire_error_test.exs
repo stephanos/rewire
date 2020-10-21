@@ -1,13 +1,11 @@
 defmodule RewireBlockErrorTest do
   use ExUnit.Case
-  use Rewire
-
   import TestHelpers
 
   describe "rewiring via alias fails" do
     test "if no module is passed in" do
       assert_compile_time_raise "unable to rewire: the first argument must be a module" do
-        use Rewire
+        import Rewire
 
         rewire(:not_a_module)
       end
@@ -15,7 +13,7 @@ defmodule RewireBlockErrorTest do
 
     test "if no options are passed in" do
       assert_compile_time_raise "unable to rewire: options are missing" do
-        use Rewire
+        import Rewire
 
         rewire(Rewire.ModuleWithAliasedDependency)
       end
@@ -26,7 +24,7 @@ defmodule RewireBlockErrorTest do
     test "if no module is passed in" do
       assert_compile_time_raise "unable to rewire: the first argument must be a module" do
         defmodule NoModule do
-          use Rewire
+          import Rewire
 
           def func do
             rewire :not_a_module, as: Rewired do
@@ -40,7 +38,7 @@ defmodule RewireBlockErrorTest do
     test "if no options are passed in" do
       assert_compile_time_raise "unable to rewire: options are missing" do
         defmodule NoModule do
-          use Rewire
+          import Rewire
 
           def func do
             rewire Rewire.ModuleWithAliasedDependency do
@@ -54,7 +52,7 @@ defmodule RewireBlockErrorTest do
     test "if module to replace can not be found" do
       assert_compile_time_raise "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependency 'Rewire.NonExistant' not found" do
         defmodule ModuleToReplaceNotFound do
-          use Rewire
+          import Rewire
 
           def func do
             rewire Rewire.ModuleWithAliasedDependency, [{Rewire.NonExistant, Bonjour}] do
@@ -68,7 +66,7 @@ defmodule RewireBlockErrorTest do
     test "if module shorthand to replace can not be found" do
       assert_compile_time_raise "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependency 'NonExistant' not found" do
         defmodule ModuleReplacementNotFound do
-          use Rewire
+          import Rewire
 
           def func do
             rewire Rewire.ModuleWithAliasedDependency, NonExistant: Bonjour do
@@ -82,7 +80,7 @@ defmodule RewireBlockErrorTest do
     test "if multiple module shorthands to replace can not be found" do
       assert_compile_time_raise "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependencies 'NonExistant' and 'OtherNonExistant' not found" do
         defmodule ModuleShorthandReplacementNotFound do
-          use Rewire
+          import Rewire
 
           def func do
             rewire Rewire.ModuleWithAliasedDependency,
@@ -98,7 +96,7 @@ defmodule RewireBlockErrorTest do
     test "if module does not exist" do
       assert_compile_time_raise "unable to rewire 'Elixir.ModuleDoesNotExist': cannot find module" do
         defmodule ModuleNotFound do
-          use Rewire
+          import Rewire
 
           def func do
             rewire ModuleDoesNotExist, as: Rewired do
@@ -112,7 +110,7 @@ defmodule RewireBlockErrorTest do
     test "if option is invalid" do
       assert_compile_time_raise "unknown option passed to `rewire`: :invalid_option" do
         defmodule ModuleInvalidOption do
-          use Rewire
+          import Rewire
 
           def func do
             rewire Rewire.ModuleWithAliasedDependency, invalid_option: true do
