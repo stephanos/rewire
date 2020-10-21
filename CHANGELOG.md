@@ -1,5 +1,12 @@
 # Changelog
 
+
+## [0.5.3] - 2020-10-17
+
+### Changed
+* changex docs and tests to use `import` instead of `use`
+
+
 ## [0.5.2] - 2020-10-17
 
 ### Changed
