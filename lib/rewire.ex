@@ -19,7 +19,7 @@ defmodule Rewire do
   ```elixir
   defmodule MyTest do
     use ExUnit.Case
-    import Rewire                                     # (1) activate `rewire`
+    import Rewire                                  # (1) activate `rewire`
     import Mox
 
     rewire Conversation, English: EnglishMock      # (2) rewire `English` to `EnglishMock`
