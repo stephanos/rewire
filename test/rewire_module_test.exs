@@ -1,6 +1,6 @@
 defmodule RewireModuleTest do
   use ExUnit.Case
-  use Rewire
+  import Rewire
 
   alias Rewire.Hello
   import ExUnit.CaptureIO

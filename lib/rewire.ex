@@ -19,7 +19,7 @@ defmodule Rewire do
   ```elixir
   defmodule MyTest do
     use ExUnit.Case
-    use Rewire                                     # (1) activate `rewire`
+    import Rewire                                     # (1) activate `rewire`
     import Mox
 
     rewire Conversation, English: EnglishMock      # (2) rewire `English` to `EnglishMock`
@@ -58,6 +58,7 @@ defmodule Rewire do
 
   import Rewire.Utils
 
+  # left for backwards-compability
   defmacro __using__(_) do
     quote do
       # Needed for importing the `rewire` macro.
@@ -81,7 +82,7 @@ defmodule Rewire do
   Macro that allows to rewire (and alias) a module.
 
   ```elixir
-  use Rewire
+  import Rewire
 
   rewire App.ModuleToRewire, ModuleDep: Mock
 
@@ -106,7 +107,7 @@ defmodule Rewire do
   Macro that allows to rewire a module within a block.
 
   ```elixir
-  use Rewire
+  import Rewire
 
   rewire App.ModuleToRewire, ModuleDep: Mock do
     # `ModuleToRewire` will use `Mock` now

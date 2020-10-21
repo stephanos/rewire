@@ -1,6 +1,6 @@
 defmodule RewireDebugTest do
   use ExUnit.Case
-  use Rewire
+  import Rewire
 
   test "debug mode" do
     rewire Rewire.Hello, as: Hello, debug: true do
