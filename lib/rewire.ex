@@ -18,7 +18,7 @@ defmodule Rewire do
 
   ```elixir
   defmodule MyTest do
-    use ExUnit.Case
+    use ExUnit.Case, async: true
     import Rewire                                  # (1) activate `rewire`
     import Mox
 

@@ -37,7 +37,7 @@ If you define a `mox` mock `EnglishMock` you can rewire the dependency in your u
 
 ```elixir
 defmodule MyTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Rewire                                  # (1) activate `rewire`
   import Mox
 
