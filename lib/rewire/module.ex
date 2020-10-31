@@ -155,7 +155,7 @@ defmodule Rewire.Module do
     case find_override(overrides, module_ast) do
       nil ->
         if Enum.member?(prev_module_asts, module_ast) do
-          # It's referencing a previously define module,
+          # It's referencing a previously defined module,
           # we're going to point the alias to the original module instead.
           {{:__aliases__, l1, module_parent_ast ++ module_ast}, acc}
         else
