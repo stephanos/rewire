@@ -156,7 +156,7 @@ defmodule Rewire.Module do
       nil ->
         if Enum.member?(prev_module_asts, module_ast) do
           # It's referencing a previously defined module,
-          # we're going to point the alias to the original module instead.
+          # we're going to point it to the original module instead.
           {{:__aliases__, l1, module_parent_ast ++ module_ast}, acc}
         else
           {expr, acc}
