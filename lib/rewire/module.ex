@@ -145,7 +145,12 @@ defmodule Rewire.Module do
   # Replaces any rewired module's references to point to mocks instead.
   defp rewrite(
          expr = {:__aliases__, l1, module_ast},
-         acc = %{overrides: overrides, overrides_completed: overrides_completed, module_parent_ast: module_parent_ast, prev_module_asts: prev_module_asts}
+         acc = %{
+           overrides: overrides,
+           overrides_completed: overrides_completed,
+           module_parent_ast: module_parent_ast,
+           prev_module_asts: prev_module_asts
+         }
        ) do
     case find_override(overrides, module_ast) do
       nil ->
