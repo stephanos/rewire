@@ -1,6 +1,12 @@
 # Changelog
 
 
+## [0.5.4] - 2020-10-31
+
+### Changed
+* fixed bug for references to a previously-defined inner module
+
+
 ## [0.5.3] - 2020-10-17
 
 ### Changed

@@ -1,6 +1,4 @@
 defmodule Rewire.ModuleWithNested do
-  def hello(), do: Rewire.ModuleWithNested.Nested.hello()
-
   defmodule RedHerring do
   end
 
@@ -17,4 +15,6 @@ defmodule Rewire.ModuleWithNested do
 
   defmodule AnotherRedHerring do
   end
+
+  def hello(), do: Nested.hello()
 end

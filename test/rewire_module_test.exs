@@ -33,7 +33,7 @@ defmodule RewireModuleTest do
     test "a module with a nested module inside" do
       output =
         capture_io(:stderr, fn ->
-          rewire Rewire.ModuleWithNested, as: Rewired do
+          rewire Rewire.ModuleWithNested, as: Rewired, debug: true do
             assert Rewired != Rewire.ModuleWithNested
             assert Rewired.hello() == Rewire.ModuleWithNested.hello()
 
