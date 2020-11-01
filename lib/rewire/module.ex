@@ -65,6 +65,7 @@ defmodule Rewire.Module do
         overrides: %{},
         overrides_completed: [],
         module_parent_ast: [],
+        prev_module_asts: [],
         old_module_ast: old_module_ast,
         new_module_ast: new_module_ast
       }
@@ -86,6 +87,7 @@ defmodule Rewire.Module do
   defp rewrite(
          {:defmodule, l1, [{:__aliases__, l2, module_ast}, rest]},
          acc = %{
+           prev_module_asts: prev_module_asts,
            new_module_ast: new_module_ast,
            old_module_ast: old_module_ast,
            module_parent_ast: module_parent_ast
@@ -113,7 +115,7 @@ defmodule Rewire.Module do
 
       # Skip module entirely because it would just be redefined, causing a warning.
       true ->
-        {[], acc}
+        {[], %{acc | prev_module_asts: [module_ast | prev_module_asts]}}
     end
   end
 
@@ -143,11 +145,22 @@ defmodule Rewire.Module do
   # Replaces any rewired module's references to point to mocks instead.
   defp rewrite(
          expr = {:__aliases__, l1, module_ast},
-         acc = %{overrides: overrides, overrides_completed: overrides_completed}
+         acc = %{
+           overrides: overrides,
+           overrides_completed: overrides_completed,
+           module_parent_ast: module_parent_ast,
+           prev_module_asts: prev_module_asts
+         }
        ) do
     case find_override(overrides, module_ast) do
       nil ->
-        {expr, acc}
+        if Enum.member?(prev_module_asts, module_ast) do
+          # It's referencing a previously defined module,
+          # we're going to point it to the original module instead.
+          {{:__aliases__, l1, module_parent_ast ++ module_ast}, acc}
+        else
+          {expr, acc}
+        end
 
       {identifier, new_ast} ->
         {{:__aliases__, l1, new_ast},
