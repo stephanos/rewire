@@ -92,9 +92,13 @@ Maybe just a little? Conclusive data from a larger code base isn't in yet.
 
 Sadly, not yet. But that is fixable. See [issue #10](https://github.com/stephanos/rewire/issues/10).
 
-**Will it work with stateful modules?**
+**Will it work with stateful processes?**
 
-If the stateful module is started _after_ it has been rewired, it will work fine. However, if the module is started _before_ - like a Phoenix controller - it won't work since it can't be rewired anymore. `rewire` is best used for unit tests.
+If the stateful process is started _after_ its module has been rewired, it will work fine. However, if the module is started _before_ - like a Phoenix controller - it won't work since it can't be rewired anymore. `rewire` is best used for unit tests.
+
+**Will it work with Erlang modules?**
+
+It is not able to rewire Erlang modules - but you can replace Erlang module references in Elixir modules.
 
 **How do I stop `mix format` from adding parentheses around `rewire`?**
 
