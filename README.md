@@ -100,6 +100,10 @@ If the stateful process is started _after_ its module has been rewired, it will 
 
 It is not able to rewire Erlang modules - but you can replace Erlang module references in Elixir modules.
 
+**How does it deal with nested modules?**
+
+Only the dependencies of the rewired module will be replaced. Any modules defined around the rewired module will be ignored. All references of the rewired module to them will be pointing to the original. You're always able to rewire them separately yourself.
+
 **How do I stop `mix format` from adding parentheses around `rewire`?**
 
 Add this to your `.formatter.exs` file:
