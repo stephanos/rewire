@@ -175,14 +175,15 @@ defmodule Rewire.Module do
            overrides: overrides,
            overrides_completed: overrides_completed
          }
-       ) when is_atom(module) do
+       )
+       when is_atom(module) do
     case find_override(overrides, [module]) do
       nil ->
         {expr, acc}
 
       {_, new_ast} ->
         {{:., l1, [{:__aliases__, l1, new_ast}, func]},
-          %{acc | overrides_completed: [[module] | overrides_completed]}}
+         %{acc | overrides_completed: [[module] | overrides_completed]}}
     end
   end
 
