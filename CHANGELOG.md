@@ -1,6 +1,12 @@
 # Changelog
 
 
+## [0.6.0] - 2020-11-06
+
+### Changed
+* added support for rewiring a dependency on an Erlang module
+
+
 ## [0.5.4] - 2020-10-31
 
 ### Changed

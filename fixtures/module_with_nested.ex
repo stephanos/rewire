@@ -5,7 +5,6 @@ defmodule Rewire.ModuleWithNested do
   defmodule Nested do
     alias Rewire.ModuleWithNested.Nested.NestedNested
 
-    @spec hello :: <<_::40>>
     def hello(), do: NestedNested.hello()
 
     defmodule NestedNested do

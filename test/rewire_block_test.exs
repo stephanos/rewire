@@ -53,6 +53,21 @@ defmodule RewireBlockTest do
       refute output =~ "warning"
     end
 
+    test "an Erlang module" do
+      defmodule StringMock do
+        def titlecase("hello"), do: "Hello!"
+      end
+
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.HelloErlang, string: StringMock do
+            assert HelloErlang.hello() == "Hello!"
+          end
+        end)
+
+      refute output =~ "warning"
+    end
+
     test "imported dependency" do
       output =
         capture_io(:stderr, fn ->

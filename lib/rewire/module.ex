@@ -168,6 +168,25 @@ defmodule Rewire.Module do
     end
   end
 
+  # Replaces any rewired module's Erlang references to point to mocks instead.
+  defp rewrite(
+         expr = {:., l1, [module, func]},
+         acc = %{
+           overrides: overrides,
+           overrides_completed: overrides_completed
+         }
+       )
+       when is_atom(module) do
+    case find_override(overrides, [module]) do
+      nil ->
+        {expr, acc}
+
+      {_, new_ast} ->
+        {{:., l1, [{:__aliases__, l1, new_ast}, func]},
+         %{acc | overrides_completed: [[module] | overrides_completed]}}
+    end
+  end
+
   # Anything else just passes through.
   defp rewrite(expr, acc), do: {expr, acc}
 
