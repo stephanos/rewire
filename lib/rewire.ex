@@ -72,7 +72,7 @@ defmodule Rewire do
 
   @doc false
   defmacro rewire(_),
-    do: invalid_rewire("the first argument must be a module", __CALLER__)
+    do: invalid_rewire("the first argument must be an Elixir module", __CALLER__)
 
   @doc false
   defmacro rewire({:__aliases__, _, _}, do: _block),
@@ -123,7 +123,7 @@ defmodule Rewire do
 
   @doc false
   defmacro rewire(_, _opts, do: _block),
-    do: invalid_rewire("the first argument must be a module", __CALLER__)
+    do: invalid_rewire("the first argument must be an Elixir module", __CALLER__)
 
   defp invalid_rewire(reason, %{file: file, line: line}),
     do:

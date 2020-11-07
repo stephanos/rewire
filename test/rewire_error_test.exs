@@ -4,7 +4,7 @@ defmodule RewireBlockErrorTest do
 
   describe "rewiring via alias fails" do
     test "if no module is passed in" do
-      assert_compile_time_raise "unable to rewire: the first argument must be a module" do
+      assert_compile_time_raise "unable to rewire: the first argument must be an Elixir module" do
         import Rewire
 
         rewire(:not_a_module)
@@ -22,7 +22,7 @@ defmodule RewireBlockErrorTest do
 
   describe "rewiring via a block fails" do
     test "if no module is passed in" do
-      assert_compile_time_raise "unable to rewire: the first argument must be a module" do
+      assert_compile_time_raise "unable to rewire: the first argument must be an Elixir module" do
         defmodule NoModule do
           import Rewire
 
