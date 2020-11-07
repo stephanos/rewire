@@ -3,19 +3,41 @@ defmodule Rewire.Utils do
 
   def parse_opts(old_module_ast, opts, %{aliases: aliases, file: file, line: line}) do
     old_module_ast = resolve_alias(old_module_ast, aliases)
+    mod = module_ast_to_atom(old_module_ast)
+
+    # First, we need to make sure that the module to rewire actually exists.
+    if Code.ensure_compiled(mod) == {:error, :nofile} do
+      raise CompileError,
+        description: "unable to rewire '#{module_to_name(mod)}': cannot find module",
+        file: file,
+        line: line
+    end
+
+    # Then, we need to check if the module to rewire has actually been rewired before.
+    # If so, we'll use the original module's name for generating a new name and
+    # add the previously overridden dependencies to the overrides.
+    previously_rewired = mod.module_info() |> Keyword.get(:exports) |> Keyword.fetch(:__rewire__) == {:ok, 0}
+    {old_module_ast, inherited_overrides} =
+      if previously_rewired do
+        %{original: original, rewired: rewired} = mod.__rewire__()
+        {original, rewired}
+      else
+        {old_module_ast, %{}}
+      end
 
     default_opts = %{
-      debug: false,
+      mod: mod,
       file: file,
       line: line,
+      debug: false,
       old_module_ast: old_module_ast,
       new_module_ast: gen_new_module_ast(old_module_ast),
       module_shorthand: List.last(old_module_ast),
-      overrides: %{}
+      overrides: inherited_overrides
     }
 
     # Customize rewire options from user input.
-    Enum.reduce(opts, default_opts, fn
+    opts = Enum.reduce(opts, default_opts, fn
       {:as, {:__aliases__, _, [new_name]}}, acc ->
         Map.put(acc, :module_shorthand, new_name)
 
@@ -40,6 +62,13 @@ defmodule Rewire.Utils do
           file: file,
           line: line
     end)
+
+    debug_log(opts, fn -> "old name: #{inspect Map.get(opts, :old_module_ast)}" end)
+    debug_log(opts, fn -> "new name: #{inspect Map.get(opts, :new_module_ast)}" end)
+    debug_log(opts, fn -> "alias: #{inspect Map.get(opts, :module_shorthand)}" end)
+    debug_log(opts, fn -> "overrides: #{inspect Map.get(opts, :overrides)}" end)
+
+    opts
   end
 
   # Determine generated module's name. It has to be a unique name.
@@ -59,6 +88,9 @@ defmodule Rewire.Utils do
     end) || module_ast
   end
 
+  def module_ast_to_atom(ast),
+    do: "Elixir.#{module_ast_to_name(ast)}" |> String.to_atom()
+
   def module_ast_to_name(ast),
     do: ast |> Enum.map_join(".", &Atom.to_string/1)
 
@@ -70,4 +102,12 @@ defmodule Rewire.Utils do
 
   def module_name_to_ast(name),
     do: name |> String.trim_leading("Elixir.") |> String.split(".") |> Enum.map(&String.to_atom/1)
+
+  def debug_log(%{debug: true} = opts, message_func) when is_function(message_func) do
+    debug_log(opts, message_func.())
+  end
+  def debug_log(%{debug: true, mod: mod}, message) do
+    IO.puts IO.ANSI.format([:light_blue, "[Rewire] [#{mod}] #{message}"])
+  end
+  def debug_log(_opts, _message), do: :ok
 end

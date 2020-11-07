@@ -109,7 +109,7 @@ defmodule RewireBlockTest do
     test "stracktrace still points to original file location" do
       try do
         rewire Rewire.Goodbye, as: Goodbye do
-          Goodbye.hello()
+          Goodbye.bye()
         end
 
         refute "we never get here"
