@@ -3,7 +3,6 @@ defmodule Rewire.Block do
 
   def rewire_block(
         opts = %{
-          old_module_ast: old_module_ast,
           module_shorthand: module_shorthand,
           new_module_ast: new_module_ast
         },
@@ -11,7 +10,7 @@ defmodule Rewire.Block do
       ) do
     quote do
       # First, we generate the rewired module.
-      unquote(Rewire.Module.rewire_module(old_module_ast, opts))
+      unquote(Rewire.Module.rewire_module(opts))
 
       # Then, we replace all references to the original module with our rewired one.
       unquote(rewire_test_block(block, module_shorthand, new_module_ast))

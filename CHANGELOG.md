@@ -1,10 +1,17 @@
 # Changelog
 
 
+## [0.7.0] - 2020-11-07
+
+### Added
+* added ability to re-rewire a module
+* added extensive debug logging
+
+
 ## [0.6.0] - 2020-11-06
 
-### Changed
-* added support for rewiring a dependency on an Erlang module
+### Added
+* support for rewiring a dependency on an Erlang module
 
 
 ## [0.5.4] - 2020-10-31
@@ -16,7 +23,7 @@
 ## [0.5.3] - 2020-10-17
 
 ### Changed
-* changex docs and tests to use `import` instead of `use`
+* docs and tests to use `import` instead of `use`
 
 
 ## [0.5.2] - 2020-10-17
