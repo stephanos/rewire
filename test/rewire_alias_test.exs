@@ -28,6 +28,7 @@ defmodule RewireAliasTest do
 
     test "works together with a block" do
       rewire Rewire.ModuleWithDependency, Hello: Bonjour
+
       rewire ModuleWithDependency, Goodbye: AuRevoir do
         assert ModuleWithDependency.hello() == "bonjour"
         assert ModuleWithDependency.bye() == "au revoir"

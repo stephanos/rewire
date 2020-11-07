@@ -11,11 +11,13 @@ defmodule Rewire.Module do
       |> Keyword.get(:compile)
       |> Keyword.get(:source)
       |> to_string()
+
     debug_log(opts, "source path: #{Path.relative_to(source_path, File.cwd!())}")
 
     # Load module's AST.
     source = File.read!(source_path)
     {:ok, ast} = Code.string_to_quoted(source)
+
     debug_log(opts, fn ->
       ["original AST:", inspect(ast, pretty: true), ""] |> Enum.join("\n\n")
     end)
@@ -23,6 +25,7 @@ defmodule Rewire.Module do
     # Traverse through AST and create new module with rewired dependencies.
     old_mod_name = mod |> Atom.to_string() |> String.trim_leading("Elixir.")
     new_mod_name = Map.fetch!(opts, :new_module_ast) |> module_ast_to_name()
+
     new_ast =
       traverse(
         ast,
@@ -34,6 +37,7 @@ defmodule Rewire.Module do
     debug_log(opts, fn ->
       ["new AST:", inspect(new_ast, pretty: true), ""] |> Enum.join("\n\n")
     end)
+
     debug_log(opts, fn ->
       ["new code:", Macro.to_string(quote do: unquote(new_ast)) <> "\n"] |> Enum.join("\n\n")
     end)
@@ -84,27 +88,32 @@ defmodule Rewire.Module do
       # We found the module to rewire,
       # let's create a copy with a new name.
       full_module_ast == old_module_ast ->
-        debug_log(acc, "found module: #{inspect full_module_ast}")
+        debug_log(acc, "found module: #{inspect(full_module_ast)}")
 
         # To allow multiple rewire steps, we need to add rewire metadata to the module.
         # `__rewire__/0` will contain the original module name and the overrides.
         metadata =
-          {:def, [line: 0], [
-            {:__rewire__, [line: 0], []},
-            [
-              do: {:%{}, [line: 0], [
-                original: old_module_ast,
-                rewired: {:%{}, [line: 0], overrides |> Enum.map(fn(item) -> item end)}
-              ]}
-            ]
-          ]}
+          {:def, [line: 0],
+           [
+             {:__rewire__, [line: 0], []},
+             [
+               do:
+                 {:%{}, [line: 0],
+                  [
+                    original: old_module_ast,
+                    rewired: {:%{}, [line: 0], overrides |> Enum.map(fn item -> item end)}
+                  ]}
+             ]
+           ]}
+
         {{:defmodule, l1, [{:__aliases__, l2, new_module_ast}, [do: [metadata | body]]]},
          %{acc | module_parent_ast: module_parent_ast ++ old_module_ast}}
 
       # We found a parent module of the module to rewrite,
       # let's extract all nested modules and continue.
       List.starts_with?(old_module_ast, full_module_ast) ->
-        debug_log(acc, "found parent module: #{inspect module_ast}")
+        debug_log(acc, "found parent module: #{inspect(module_ast)}")
+
         {body
          |> Enum.filter(fn
            {:defmodule, _, _} -> true
@@ -113,13 +122,17 @@ defmodule Rewire.Module do
 
       # Skip module entirely because it would just be redefined, causing a warning.
       true ->
-        debug_log(acc, "ignoring inner module: #{inspect module_ast}")
+        debug_log(acc, "ignoring inner module: #{inspect(module_ast)}")
         {[], %{acc | prev_module_asts: [module_ast | prev_module_asts]}}
     end
   end
+
   defp rewrite({:defmodule, l1, [{:__aliases__, l2, module_ast}, [do: body]]}, acc) do
     # We rewire the module body to always be a block in order to simplify things.
-    rewrite({:defmodule, l1, [{:__aliases__, l2, module_ast}, [do: {:__block__, [], [body]}]]}, acc)
+    rewrite(
+      {:defmodule, l1, [{:__aliases__, l2, module_ast}, [do: {:__block__, [], [body]}]]},
+      acc
+    )
   end
 
   # Removes a single alias (ie `alias A.A`) pointing to an overriden module dependency. Keeps the others.
@@ -129,8 +142,9 @@ defmodule Rewire.Module do
        ) do
     case find_override(overrides, module_ast) do
       nil ->
-        debug_log(acc, "removing `alias`: #{inspect module_ast}")
+        debug_log(acc, "removing `alias`: #{inspect(module_ast)}")
         {expr, acc}
+
       _ ->
         {[], acc}
     end
@@ -163,14 +177,15 @@ defmodule Rewire.Module do
         if Enum.member?(prev_module_asts, module_ast) do
           # It's referencing a previously defined module,
           # we're going to point it to the original module instead.
-          debug_log(acc, "replacing inner module reference: #{inspect module_ast}")
+          debug_log(acc, "replacing inner module reference: #{inspect(module_ast)}")
           {{:__aliases__, l1, module_parent_ast ++ module_ast}, acc}
         else
           {expr, acc}
         end
 
       {identifier, new_ast} ->
-        debug_log(acc, "replacing module reference: #{inspect module_ast}")
+        debug_log(acc, "replacing module reference: #{inspect(module_ast)}")
+
         {{:__aliases__, l1, new_ast},
          %{acc | overrides_completed: [identifier | overrides_completed]}}
     end
@@ -190,7 +205,8 @@ defmodule Rewire.Module do
         {expr, acc}
 
       {_, new_ast} ->
-        debug_log(acc, "replacing Erlang module reference: #{inspect module}")
+        debug_log(acc, "replacing Erlang module reference: #{inspect(module)}")
+
         {{:., l1, [{:__aliases__, l1, new_ast}, func]},
          %{acc | overrides_completed: [[module] | overrides_completed]}}
     end

@@ -6,6 +6,7 @@ defmodule RewireDebugTest do
     output =
       capture_compile_time_io do
         import Rewire
+
         rewire Rewire.Hello, as: Hello, debug: true do
           :ok
         end
