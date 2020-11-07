@@ -5,6 +5,7 @@
 
 ### Added
 * added ability to re-rewire a module
+* added extensive debug logging
 
 
 ## [0.6.0] - 2020-11-06
