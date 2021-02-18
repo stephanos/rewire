@@ -65,7 +65,9 @@ You can also give the alias a different name using `as`:
   rewire Conversation, English: EnglishMock, as: SmallTalk
 ```
 
-Alternatively, you can also rewire a module inside a block:
+Note that the `rewire` acts like an `alias` here in terms of scoping.
+
+Alternatively, you can also limit the scope to a dedicated block:
 
 ```elixir
   rewire Conversation, English: EnglishMock do   # (1) only rewired inside the block
