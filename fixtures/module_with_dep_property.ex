@@ -1,5 +1,5 @@
 defmodule Rewire.ModuleWithPropertyDependency do
-  @hello Application.compile_env!(:rewire, :hello)
+  @hello Rewire.Application.compile_env!(:rewire, :hello)
   @hello_explicit Rewire.Hello
 
   def hello(), do: @hello.hello()
