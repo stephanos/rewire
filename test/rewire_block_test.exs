@@ -31,11 +31,44 @@ defmodule RewireBlockTest do
       refute output =~ "warning"
     end
 
+    test "property dependency" do
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.ModuleWithPropertyDependency, hello: Bonjour do
+            assert ModuleWithPropertyDependency.hello() == "bonjour"
+          end
+        end)
+
+      refute output =~ "warning"
+    end
+
+    test "explicit property dependency" do
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.ModuleWithPropertyDependency, hello_explicit: Bonjour do
+            assert ModuleWithPropertyDependency.hello_explicit() == "bonjour"
+          end
+        end)
+
+      refute output =~ "warning"
+    end
+
     test "nested, aliased dependency" do
       output =
         capture_io(:stderr, fn ->
           rewire Rewire.ModuleWithNested.Nested.NestedNested, Hello: Bonjour do
             assert NestedNested.hello() == "bonjour"
+          end
+        end)
+
+      refute output =~ "warning"
+    end
+
+    test "nested, property" do
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.ModuleWithNested.Nested.NestedNested, hello: Bonjour do
+            assert NestedNested.hello_with_property() == "bonjour"
           end
         end)
 
@@ -98,6 +131,21 @@ defmodule RewireBlockTest do
             rewire Rewire.ModuleWithNested.Nested, NestedNested: NestedNested do
               rewire Rewire.ModuleWithNested, Nested: Nested do
                 assert ModuleWithNested.hello() == "bonjour"
+              end
+            end
+          end
+        end)
+
+      refute output =~ "warning"
+    end
+
+    test "multiple modules with property" do
+      output =
+        capture_io(:stderr, fn ->
+          rewire Rewire.ModuleWithNested.Nested.NestedNested, hello: Bonjour do
+            rewire Rewire.ModuleWithNested.Nested, nested: NestedNested do
+              rewire Rewire.ModuleWithNested, nested: Nested do
+                assert ModuleWithNested.hello_with_property() == "bonjour"
               end
             end
           end

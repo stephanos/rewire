@@ -150,6 +150,22 @@ defmodule Rewire.Module do
     end
   end
 
+  # Replace a single property (ie `@property Application.compile_env!(...)`).
+  defp rewrite(
+         expr = {:@, meta, [{property, _, body}]},
+         acc = %{overrides: overrides, overrides_completed: overrides_completed}
+       )
+       when not is_nil(body) do
+    case Map.get(overrides, [property]) do
+      nil ->
+        {expr, acc}
+
+      over ->
+        {{:@, meta, [{property, meta, [{:__aliases__, meta, over}]}]},
+         %{acc | overrides_completed: overrides_completed ++ [[property]]}}
+    end
+  end
+
   # Removes a multi-aliases (ie `alias A.{B, C}`) overriden module dependencies. Keeps the others.
   defp rewrite(
          {:alias, _, [{{:., _, [{:__aliases__, _, root_module_ast}, :{}]}, _, aliases}]},
