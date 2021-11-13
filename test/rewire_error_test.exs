@@ -77,6 +77,20 @@ defmodule RewireBlockErrorTest do
       end
     end
 
+    test "if property to replace can not be found" do
+      assert_compile_time_raise "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependency 'not_existing_property' not found" do
+        defmodule ModuleReplacementNotFound do
+          import Rewire
+
+          def func do
+            rewire Rewire.ModuleWithAliasedDependency, not_existing_property: Bonjour do
+              # nothing here
+            end
+          end
+        end
+      end
+    end
+
     test "if multiple module shorthands to replace can not be found" do
       assert_compile_time_raise "unable to rewire 'Rewire.ModuleWithAliasedDependency': dependencies 'NonExistant' and 'OtherNonExistant' not found" do
         defmodule ModuleShorthandReplacementNotFound do
