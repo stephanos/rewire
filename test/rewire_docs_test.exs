@@ -3,12 +3,10 @@ defmodule English do
   def greet(), do: "hello"
 end
 
-
 defmodule Conversation do
   @punctuation "!"
   def start(), do: English.greet() <> @punctuation
 end
-
 
 defmodule RewireTest do
   use ExUnit.Case, async: true
