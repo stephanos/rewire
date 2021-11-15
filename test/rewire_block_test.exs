@@ -31,22 +31,22 @@ defmodule RewireBlockTest do
       refute output =~ "warning"
     end
 
-    test "property dependency" do
+    test "attribute dependency" do
       output =
         capture_io(:stderr, fn ->
-          rewire Rewire.ModuleWithPropertyDependency, hello: Bonjour do
-            assert ModuleWithPropertyDependency.hello() == "bonjour"
+          rewire Rewire.ModuleWithAttributeDependency, hello: Bonjour do
+            assert ModuleWithAttributeDependency.hello() == "bonjour"
           end
         end)
 
       refute output =~ "warning"
     end
 
-    test "explicit property dependency" do
+    test "explicit attribute dependency" do
       output =
         capture_io(:stderr, fn ->
-          rewire Rewire.ModuleWithPropertyDependency, hello_explicit: Bonjour do
-            assert ModuleWithPropertyDependency.hello_explicit() == "bonjour"
+          rewire Rewire.ModuleWithAttributeDependency, hello_explicit: Bonjour do
+            assert ModuleWithAttributeDependency.hello_explicit() == "bonjour"
           end
         end)
 

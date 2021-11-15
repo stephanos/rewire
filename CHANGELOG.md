@@ -4,7 +4,7 @@
 ## [0.8.0] - 2021-11-13
 
 ### Added
-* added ability to re-rewire a module property
+* added ability to re-rewire a module attribute
 
 
 ## [0.7.0] - 2020-11-07

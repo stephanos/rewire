@@ -10,7 +10,8 @@ defmodule Rewire do
   ```elixir
   # this module has a hard-wired dependency on the `English` module
   defmodule Conversation do
-    def start(), do: English.greet()
+    @punctuation "!"
+    def start(), do: English.greet() <> @punctuation
   end
   ```
 
@@ -26,7 +27,7 @@ defmodule Rewire do
 
     test "start/0" do
       stub(EnglishMock, :greet, fn -> "g'day" end)
-      assert Conversation.start() == "g'day"       # (3) test using the mock
+      assert Conversation.start() == "g'day!"      # (3) test using the mock
     end
   end
   ```
@@ -51,9 +52,11 @@ defmodule Rewire do
   ```elixir
     rewire Conversation, English: EnglishMock do   # (1) only rewired inside the block
       stub(EnglishMock, :greet, fn -> "g'day" end)
-      assert Conversation.start() == "g'day"       # (2) test using the mock
+      assert Conversation.start() == "g'day!"      # (2) test using the mock
     end
   ```
+
+  Plus, you can also rewire module attributes.
   """
 
   import Rewire.Utils

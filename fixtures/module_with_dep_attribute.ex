@@ -1,4 +1,4 @@
-defmodule Rewire.ModuleWithPropertyDependency do
+defmodule Rewire.ModuleWithAttributeDependency do
   @hello Rewire.Application.compile_env!(:rewire, :hello)
   @hello_explicit Rewire.Hello
 
