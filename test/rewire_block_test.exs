@@ -4,6 +4,10 @@ defmodule RewireBlockTest do
 
   import ExUnit.CaptureIO
 
+  defmodule StringMock do
+    def titlecase("hello"), do: "Hello!"
+  end
+
   describe "rewire a block with" do
     test "non-aliased dependency" do
       output =
@@ -87,9 +91,6 @@ defmodule RewireBlockTest do
     end
 
     test "an Erlang module" do
-      defmodule StringMock do
-        def titlecase("hello"), do: "Hello!"
-      end
 
       output =
         capture_io(:stderr, fn ->
