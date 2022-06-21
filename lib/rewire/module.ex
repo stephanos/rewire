@@ -43,8 +43,29 @@ defmodule Rewire.Module do
     end)
 
     # Now evaluate the new module's AST so the file location is correct.
-    Code.eval_quoted(new_ast, [], file: source_path)
-    "Elixir.#{new_mod_name}" |> String.to_atom()
+    case Code.eval_quoted(new_ast, [], file: source_path) do
+      {{:module, module, binary, _}, []} ->
+        apply(:cover, :compile_beams, [[{module, binary}]])
+
+      {[_, {:module, module, binary, _}, _], []} ->
+        apply(:cover, :compile_beams, [[{module, binary}]])
+
+      {[_, [{:module, module, binary, _}], _], []} ->
+        apply(:cover, :compile_beams, [[{module, binary}]])
+
+      _ ->
+        :ok
+    end
+
+    new_module = "Elixir.#{new_mod_name}" |> String.to_atom()
+
+    if Rewire.Cover.enabled?(mod) do
+      ExUnit.after_suite(fn _ ->
+        Rewire.Cover.replace_coverdata!(new_module, mod)
+      end)
+    end
+
+    new_module
   end
 
   defp traverse(ast, old_module_ast, new_module_ast, opts) do
@@ -255,9 +276,7 @@ defmodule Rewire.Module do
       [unused_override] ->
         raise CompileError,
           description:
-            "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{
-              module_ast_to_name(unused_override)
-            }' not found",
+            "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{module_ast_to_name(unused_override)}' not found",
           file: file,
           line: line
 

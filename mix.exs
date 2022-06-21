@@ -11,7 +11,8 @@ defmodule Rewire.MixProject do
       deps: deps(),
       package: package(),
       description: description(),
-      source_url: "https://github.com/stephanos/rewire"
+      source_url: "https://github.com/stephanos/rewire",
+      test_coverage: [tool: Rewire.TestCover]
     ]
   end
 
@@ -21,7 +22,8 @@ defmodule Rewire.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :tools],
+      mod: {Rewire.Setup, []}
     ]
   end
 
