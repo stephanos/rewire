@@ -9,7 +9,7 @@ defmodule Rewire.Cover do
   https://github.com/eproxus/meck/blob/2c7ba603416e95401500d7e116c5a829cb558665/src/meck_cover.erl#L67-L91
   """
 
-  @tmp_coverdata_dir "_build/rewire"
+  @tmp_coverdata_dir Mix.Project.build_path() <> "/rewire_coverdata"
 
   @spec enabled?(module) :: boolean
   def enabled?(module) do
