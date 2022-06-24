@@ -91,7 +91,6 @@ defmodule RewireBlockTest do
     end
 
     test "an Erlang module" do
-
       output =
         capture_io(:stderr, fn ->
           rewire Rewire.HelloErlang, string: StringMock do
