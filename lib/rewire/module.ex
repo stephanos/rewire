@@ -44,6 +44,7 @@ defmodule Rewire.Module do
 
     # Now evaluate the new module's AST so the file location is correct.
     case Code.eval_quoted(new_ast, [], file: source_path) do
+      # Capture created module and compile for coverage reporting.
       {{:module, module, binary, _}, []} ->
         apply(:cover, :compile_beams, [[{module, binary}]])
 
@@ -54,7 +55,7 @@ defmodule Rewire.Module do
         apply(:cover, :compile_beams, [[{module, binary}]])
 
       _ ->
-        :ok
+        IO.warn("Failed to compile code coverage for: #{old_mod_name}")
     end
 
     new_module = "Elixir.#{new_mod_name}" |> String.to_atom()
@@ -89,7 +90,9 @@ defmodule Rewire.Module do
     %{overrides_completed: overrides_completed} = new_acc
     report_broken_overrides(old_module_ast, Map.keys(overrides), overrides_completed, opts)
 
-    new_ast
+    # In some cases the generated AST is unnecessarily nested, which prevents
+    # capturing the created module and compiling for coverage reporting.
+    flatten(new_ast)
   end
 
   # Changes the rewired module's name to prevent a naming collision.
@@ -294,4 +297,10 @@ defmodule Rewire.Module do
           line: line
     end
   end
+
+  defp flatten({:__block__, [], [[], {:defmodule, _, _} = nested, []]}) do
+    {:__block__, [], [nested]}
+  end
+
+  defp flatten(ast), do: ast
 end

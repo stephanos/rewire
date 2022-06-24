@@ -41,7 +41,7 @@ defmodule Rewire.Cover do
   def export_coverdata!(module) do
     File.mkdir_p!(@tmp_coverdata_dir)
     path = Path.expand("#{module}-#{:os.getpid()}.coverdata", @tmp_coverdata_dir)
-    :cover.export(String.to_charlist(path), module)
+    :ok = :cover.export(String.to_charlist(path), module)
     path
   end
 
