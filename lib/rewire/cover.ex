@@ -13,7 +13,8 @@ defmodule Rewire.Cover do
 
   @spec enabled?(module) :: boolean
   def enabled?(module) do
-    :cover.is_compiled(module) != false
+    function_exported?(ExUnit, :after_suite, 1) &&
+      :cover.is_compiled(module) != false
   end
 
   @doc false
