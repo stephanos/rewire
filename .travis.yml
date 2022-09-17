@@ -10,25 +10,25 @@ jobs:
       otp_release: 20.3
       script:
         - mix compile --warning-as-errors
-        - mix test
+        - mix test --cover
     - elixir: 1.9.4
       otp_release: 20.3
       script:
         - mix compile --warning-as-errors
-        - mix test
+        - mix test --cover
     - elixir: 1.10.4
       otp_release: 23.0
       script:
         - mix compile --warning-as-errors
-        - mix test
+        - mix test --cover
     - elixir: 1.11
       otp_release: 23.0
       script:
         - mix compile --warning-as-errors
-        - mix test
+        - mix test --cover
     - elixir: 1.14
       otp_release: 25.0
       script:
         - mix format --check-formatted
         - mix compile --warning-as-errors
-        - mix test
+        - mix test --cover
