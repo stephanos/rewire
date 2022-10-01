@@ -11,11 +11,11 @@ defmodule Rewire.Cover do
 
   @tmp_coverdata_dir Mix.Project.build_path() <> "/rewire_coverdata"
 
+  @spec enabled?() :: boolean
+  def enabled?(), do: function_exported?(ExUnit, :after_suite, 1)
+
   @spec enabled?(module) :: boolean
-  def enabled?(module) do
-    function_exported?(ExUnit, :after_suite, 1) &&
-      :cover.is_compiled(module) != false
-  end
+  def enabled?(module), do: enabled?() && :cover.is_compiled(module) != false
 
   @doc false
   def cleanup() do

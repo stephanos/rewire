@@ -42,6 +42,10 @@ defmodule Rewire.Module do
       ["new code:", Macro.to_string(quote do: unquote(new_ast)) <> "\n"] |> Enum.join("\n\n")
     end)
 
+    if Rewire.Cover.enabled?() && Version.compare(System.version(), "1.14.0") in [:eq, :gt] do
+      apply(Code, :put_compiler_option, [:debug_info, true])
+    end
+
     # Now evaluate the new module's AST so the file location is correct.
     case Code.eval_quoted(new_ast, [], file: source_path) do
       # Capture created module and compile for coverage reporting.
