@@ -285,6 +285,5 @@ defmodule Rewire.Module do
   defp flatten({:__block__, [], [[], {:defmodule, _, _} = nested, []]}) do
     {:__block__, [], [nested]}
   end
-
   defp flatten(ast), do: ast
 end
