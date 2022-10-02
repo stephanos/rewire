@@ -22,8 +22,6 @@ defmodule Rewire.TestCover do
       _ -> false
     end)
     |> validate
-
-    Rewire.Cover.cleanup()
   end
 
   defp validate({{Rewire.Covered, :hello, 0}, 8}) do

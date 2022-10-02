@@ -25,6 +25,7 @@ defmodule Rewire.Module do
     # Traverse through AST and create new module with rewired dependencies.
     old_mod_name = mod |> Atom.to_string() |> String.trim_leading("Elixir.")
     new_mod_name = Map.fetch!(opts, :new_module_ast) |> module_ast_to_name()
+    new_module = "Elixir.#{new_mod_name}" |> String.to_atom()
 
     new_ast =
       traverse(
@@ -42,34 +43,13 @@ defmodule Rewire.Module do
       ["new code:", Macro.to_string(quote do: unquote(new_ast)) <> "\n"] |> Enum.join("\n\n")
     end)
 
-    if Rewire.Cover.enabled?() && Version.compare(System.version(), "1.14.0") in [:eq, :gt] do
-      apply(Code, :put_compiler_option, [:debug_info, true])
-    end
+    Rewire.Cover.enable_abstract_code()
 
     # Now evaluate the new module's AST so the file location is correct.
-    case Code.eval_quoted(new_ast, [], file: source_path) do
-      # Capture created module and compile for coverage reporting.
-      {{:module, module, binary, _}, []} ->
-        apply(:cover, :compile_beams, [[{module, binary}]])
+    Code.eval_quoted(new_ast, [], file: source_path)
+    |> Rewire.Cover.compile(old_mod_name)
 
-      {[_, {:module, module, binary, _}, _], []} ->
-        apply(:cover, :compile_beams, [[{module, binary}]])
-
-      {[_, [{:module, module, binary, _}], _], []} ->
-        apply(:cover, :compile_beams, [[{module, binary}]])
-
-      _ ->
-        IO.warn("Failed to compile code coverage for: #{old_mod_name}")
-    end
-
-    new_module = "Elixir.#{new_mod_name}" |> String.to_atom()
-
-    if Rewire.Cover.enabled?(mod) do
-      ExUnit.after_suite(fn _ ->
-        Rewire.Cover.replace_coverdata!(new_module, mod)
-      end)
-    end
-
+    Rewire.Cover.track(new_module, mod)
     new_module
   end
 

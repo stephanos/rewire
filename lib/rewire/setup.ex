@@ -4,7 +4,7 @@ defmodule Rewire.Setup do
   use Application
 
   def start(_, _) do
-    Rewire.Cover.export_private_functions()
-    Supervisor.start_link([], name: Rewire.Supervisor, strategy: :one_for_one)
+    Application.ensure_all_started(:ex_unit)
+    Supervisor.start_link([Rewire.Cover], name: Rewire.Supervisor, strategy: :one_for_one)
   end
 end

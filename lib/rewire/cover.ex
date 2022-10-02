@@ -9,37 +9,79 @@ defmodule Rewire.Cover do
   https://github.com/eproxus/meck/blob/2c7ba603416e95401500d7e116c5a829cb558665/src/meck_cover.erl#L67-L91
   """
 
+  use Agent
+
   @tmp_coverdata_dir Mix.Project.build_path() <> "/rewire_coverdata"
 
-  @spec enabled?() :: boolean
-  def enabled?(), do: function_exported?(ExUnit, :after_suite, 1)
+  def start_link(_) do
+    if enabled?() do
+      export_private_functions()
+      ExUnit.after_suite(&after_suite/1)
+    end
 
-  @spec enabled?(module) :: boolean
-  def enabled?(module), do: enabled?() && :cover.is_compiled(module) != false
+    Agent.start_link(fn -> [] end, name: __MODULE__)
+  end
 
-  @doc false
-  def cleanup() do
+  def enable_abstract_code do
+    if enabled?() && Version.compare(System.version(), "1.14.0") in [:gt, :eq] do
+      # Code.eval_quoted/3 does not seem to include abstract code in generated
+      # modules by default without this after Elixir 1.14.
+      apply(Code, :put_compiler_option, [:debug_info, true])
+    end
+  end
+
+  def compile(eval_result, old_mod_name) do
+    if enabled?() do
+      case eval_result do
+        # Capture created module and compile for coverage reporting.
+        {{:module, module, binary, _}, []} ->
+          apply(:cover, :compile_beams, [[{module, binary}]])
+
+        {[_, {:module, module, binary, _}, _], []} ->
+          apply(:cover, :compile_beams, [[{module, binary}]])
+
+        {[_, [{:module, module, binary, _}], _], []} ->
+          apply(:cover, :compile_beams, [[{module, binary}]])
+
+        _ ->
+          IO.warn("Failed to compile code coverage for: #{old_mod_name}")
+      end
+    end
+  end
+
+  def track(new_module, original_module) do
+    if enabled?(original_module) do
+      Agent.update(__MODULE__, &[{new_module, original_module} | &1])
+    end
+  end
+
+  defp enabled?(), do: Version.compare(System.version(), "1.8.0") in [:gt, :eq]
+  defp enabled?(module), do: enabled?() && :cover.is_compiled(module) != false
+
+  defp after_suite(_) do
+    Agent.get(__MODULE__, & &1)
+    |> Enum.each(fn {new_module, mod} ->
+      replace_coverdata!(new_module, mod)
+    end)
+
     File.rm_rf!(@tmp_coverdata_dir)
   end
 
-  @doc false
-  def export_private_functions do
+  defp export_private_functions do
     {_, binary, _} = :code.get_object_code(:cover)
     {:ok, {_, [{_, {_, abstract_code}}]}} = :beam_lib.chunks(binary, [:abstract_code])
     {:ok, module, binary} = :compile.forms(abstract_code, [:export_all])
     :code.load_binary(module, '', binary)
   end
 
-  @doc false
-  def replace_coverdata!(rewired, original_module) do
+  defp replace_coverdata!(rewired, original_module) do
     rewired_path = export_coverdata!(rewired)
     rewrite_coverdata!(rewired_path, original_module)
     :ok = :cover.import(String.to_charlist(rewired_path))
     File.rm(rewired_path)
   end
 
-  @doc false
-  def export_coverdata!(module) do
+  defp export_coverdata!(module) do
     File.mkdir_p!(@tmp_coverdata_dir)
     path = Path.expand("#{module}-#{:os.getpid()}.coverdata", @tmp_coverdata_dir)
     :ok = :cover.export(String.to_charlist(path), module)
