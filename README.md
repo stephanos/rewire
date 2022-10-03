@@ -1,5 +1,4 @@
-rewire
-===
+# rewire
 
 [![Build Status](https://travis-ci.org/stephanos/rewire.svg?branch=master)](https://travis-ci.org/stephanos/rewire)
 [![Hex.pm](https://img.shields.io/hexpm/v/rewire.svg)](https://hex.pm/packages/rewire)
@@ -17,7 +16,7 @@ Just add `rewire` to your list of dependencies in mix.exs:
 ```elixir
 def deps do
   [
-    {:rewire, "~> 0.8", only: :test}
+    {:rewire, "~> 0.9", only: :test}
   ]
 end
 ```
@@ -95,7 +94,7 @@ Maybe just a little? Conclusive data from a larger code base isn't in yet.
 
 **Will test coverage be reported correctly?**
 
-Sadly, not yet. But that is fixable. See [issue #10](https://github.com/stephanos/rewire/issues/10).
+Yes!
 
 **Will it work with stateful processes?**
 
@@ -131,10 +130,10 @@ end
 
 The downsides to that approach are:
 
-  1) Your application code is now littered with testing concerns.
-  2) Navigation in your code editor doesn't work as well.
-  3) Searches for usages of the module are more difficult.
-  4) The compiler is not able to warn you in case `greet/0` doesn't exist on the `English` module.
+1. Your application code is now littered with testing concerns.
+2. Navigation in your code editor doesn't work as well.
+3. Searches for usages of the module are more difficult.
+4. The compiler is not able to warn you in case `greet/0` doesn't exist on the `English` module.
 
 If you use `mox` for your mocking, there's a slightly better approach:
 
