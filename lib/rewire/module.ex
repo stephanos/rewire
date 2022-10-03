@@ -25,6 +25,7 @@ defmodule Rewire.Module do
     # Traverse through AST and create new module with rewired dependencies.
     old_mod_name = mod |> Atom.to_string() |> String.trim_leading("Elixir.")
     new_mod_name = Map.fetch!(opts, :new_module_ast) |> module_ast_to_name()
+    new_module = "Elixir.#{new_mod_name}" |> String.to_atom()
 
     new_ast =
       traverse(
@@ -42,9 +43,14 @@ defmodule Rewire.Module do
       ["new code:", Macro.to_string(quote do: unquote(new_ast)) <> "\n"] |> Enum.join("\n\n")
     end)
 
+    Rewire.Cover.enable_abstract_code()
+
     # Now evaluate the new module's AST so the file location is correct.
     Code.eval_quoted(new_ast, [], file: source_path)
-    "Elixir.#{new_mod_name}" |> String.to_atom()
+    |> Rewire.Cover.compile(old_mod_name)
+
+    Rewire.Cover.track(new_module, mod)
+    new_module
   end
 
   defp traverse(ast, old_module_ast, new_module_ast, opts) do
@@ -68,7 +74,9 @@ defmodule Rewire.Module do
     %{overrides_completed: overrides_completed} = new_acc
     report_broken_overrides(old_module_ast, Map.keys(overrides), overrides_completed, opts)
 
-    new_ast
+    # In some cases the generated AST is unnecessarily nested, which prevents
+    # capturing the created module and compiling for coverage reporting.
+    flatten(new_ast)
   end
 
   # Changes the rewired module's name to prevent a naming collision.
@@ -255,9 +263,7 @@ defmodule Rewire.Module do
       [unused_override] ->
         raise CompileError,
           description:
-            "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{
-              module_ast_to_name(unused_override)
-            }' not found",
+            "unable to rewire '#{module_ast_to_name(module_ast)}': dependency '#{module_ast_to_name(unused_override)}' not found",
           file: file,
           line: line
 
@@ -275,4 +281,10 @@ defmodule Rewire.Module do
           line: line
     end
   end
+
+  defp flatten({:__block__, [], [[], {:defmodule, _, _} = nested, []]}) do
+    {:__block__, [], [nested]}
+  end
+
+  defp flatten(ast), do: ast
 end
