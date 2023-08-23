@@ -26,7 +26,6 @@ defmodule Rewire.Module do
     old_mod_name = mod |> Atom.to_string() |> String.trim_leading("Elixir.")
     new_mod_name = Map.fetch!(opts, :new_module_ast) |> module_ast_to_name()
     new_module = "Elixir.#{new_mod_name}" |> String.to_atom()
-
     new_ast =
       traverse(
         ast,
@@ -141,6 +140,16 @@ defmodule Rewire.Module do
       {:defmodule, l1, [{:__aliases__, l2, module_ast}, [do: {:__block__, [], [body]}]]},
       acc
     )
+  end
+
+  defp rewrite(use_ast = {:use, l1, [{:__aliases__, l2, macro_ast} | _args]}, acc) do
+    # We need to expand macros so we can rewire their code.
+    debug_log(acc, "expanding macro: #{inspect(macro_ast)}")
+    {Macro.expand(use_ast, __ENV__), acc}
+  end
+  defp rewrite(using_ast = {{:., _, [macro_ast, :__using__]}, _, _}, acc) do
+    # TODO
+    {Macro.expand(using_ast, __ENV__), acc}
   end
 
   # Removes a single alias (ie `alias A.A`) pointing to an overriden module dependency. Keeps the others.
