@@ -4,4 +4,8 @@ defmodule Rewire.ModuleWithMacro do
   def hello_passthrough do
     hello()
   end
+
+  def good_afternoon_passthrough do
+    good_afternoon()
+  end
 end

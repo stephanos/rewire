@@ -8,6 +8,10 @@ defmodule AuRevoir do
   def bye(), do: "au revoir"
 end
 
+defmodule BonApresMidi do
+  def good_afternoon(), do: "bon apres-midi"
+end
+
 Mox.defmock(HelloMock, for: Rewire.Hello)
 
 defmodule TestHelpers do
