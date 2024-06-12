@@ -146,7 +146,7 @@ defmodule Rewire.Module do
   defp rewrite(use_ast = {:use, _l1, [{:__aliases__, _l2, _macro_ast} | _args]}, acc) do
     {:__block__, [], [{:__block__, [], [req, using]}]} = Macro.expand(use_ast, __ENV__)
     {:require, _counter_ctx, [required_module]} = req
-    {:ok, env} = Macro.Env.define_require(__ENV__, [], required_module)
+    env = %{__ENV__ | requires: [required_module] ++ __ENV__.requires}
 
     {Macro.expand(using, env), acc}
   end

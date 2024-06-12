@@ -1,7 +1,7 @@
 defmodule Rewire.ModuleWithMacroWithArgs do
-  use Rewire.Macro, arg1: :value1
+  use Rewire.Macro, use_alias: true
 
   def hello_passthrough do
-    hello()
+    Hello.hello()
   end
 end
