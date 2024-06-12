@@ -1,0 +1,66 @@
+name: Perform linting and run tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  check-formatting:
+    runs-on: ubuntu-latest
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+    name: Check formatting
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Elixir and OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.x"
+          elixir-version: "1.17.x"
+
+      - name: Install and compile dependencies
+        run: mix deps.get && mix deps.compile &> /dev/null
+
+      - name: Check formatting
+        run: mix format --check-formatted
+
+  test-matrix:
+    runs-on: ubuntu-latest
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip ci]')"
+    name: Test on OTP ${{ matrix.versions.otp }} / Elixir ${{ matrix.versions.elixir }}
+    env:
+      MIX_ENV: test
+    strategy:
+      matrix:
+        versions:
+          [
+            { otp: "24.x", elixir: "1.13.x" },
+            { otp: "25.x", elixir: "1.14.x" },
+            { otp: "26.x", elixir: "1.15.x" },
+            { otp: "26.x", elixir: "1.16.x" },
+            { otp: "27.x", elixir: "1.17.x" },
+          ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Elixir and OTP
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ matrix.versions.otp }}
+          elixir-version: ${{ matrix.versions.elixir }}
+
+      - name: Install and compile dependencies
+        run: mix deps.get && mix deps.compile &> /dev/null
+
+      - name: Compile project with warnings as errors
+        run: mix compile --warnings-as-errors
+
+      - name: Run tests
+        run: mix test
