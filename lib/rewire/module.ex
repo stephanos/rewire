@@ -79,6 +79,13 @@ defmodule Rewire.Module do
     flatten(new_ast)
   end
 
+  defp is_behaviour?(module_ast) do
+    module_ast
+    |> List.last()
+    |> to_string()
+    |> String.ends_with?("Behaviour")
+  end
+
   # Changes the rewired module's name to prevent a naming collision.
   defp rewrite(
          {:defmodule, l1, [{:__aliases__, l2, module_ast}, [do: {:__block__, [], body}]]},
@@ -185,14 +192,6 @@ defmodule Rewire.Module do
       {[new_expr | exprs], acc}
     end)
   end
-
-  defp is_behaviour?(module_ast) do
-    module_ast
-    |> List.last()
-    |> to_string()
-    |> String.ends_with?("Behaviour")
-  end
-
 
   # Replaces any rewired module's references to point to mocks instead.
   defp rewrite(
