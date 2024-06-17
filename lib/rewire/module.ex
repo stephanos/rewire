@@ -79,6 +79,13 @@ defmodule Rewire.Module do
     flatten(new_ast)
   end
 
+  defp is_behaviour?(module_ast) do
+    module_ast
+    |> List.last()
+    |> to_string()
+    |> String.ends_with?("Behaviour")
+  end
+
   # Changes the rewired module's name to prevent a naming collision.
   defp rewrite(
          {:defmodule, l1, [{:__aliases__, l2, module_ast}, [do: {:__block__, [], body}]]},
@@ -198,7 +205,7 @@ defmodule Rewire.Module do
        ) do
     case find_override(overrides, module_ast) do
       nil ->
-        if Enum.member?(prev_module_asts, module_ast) do
+        if Enum.member?(prev_module_asts, module_ast) && !is_behaviour?(module_ast) do
           # It's referencing a previously defined module,
           # we're going to point it to the original module instead.
           debug_log(acc, "replacing inner module reference: #{inspect(module_ast)}")
