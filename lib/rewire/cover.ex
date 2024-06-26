@@ -77,11 +77,11 @@ defmodule Rewire.Cover do
   defp get_abstract_code(binary) do
     try do
       {:ok, {_, [{_, {_, abstract_code}}]}} = :beam_lib.chunks(binary, [:abstract_code])
+      abstract_code
     rescue
       _e -> {:ok, {_, [abstract_code: abstract_code]}} = :beam_lib.chunks(binary, [:abstract_code])
+      abstract_code
     end
-
-    abstract_code
   end
 
   defp replace_coverdata!(rewired, original_module) do
