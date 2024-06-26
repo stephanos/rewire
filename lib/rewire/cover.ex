@@ -69,9 +69,19 @@ defmodule Rewire.Cover do
 
   defp export_private_functions do
     {_, binary, _} = :code.get_object_code(:cover)
-    {:ok, {_, [{_, {_, abstract_code}}]}} = :beam_lib.chunks(binary, [:abstract_code])
+    abstract_code = get_abstract_code(binary)
     {:ok, module, binary} = :compile.forms(abstract_code, [:export_all])
     :code.load_binary(module, '', binary)
+  end
+
+  defp get_abstract_code(binary) do
+    try do
+      {:ok, {_, [{_, {_, abstract_code}}]}} = :beam_lib.chunks(binary, [:abstract_code])
+    rescue
+      _e -> {:ok, {_, [abstract_code: abstract_code]}} = :beam_lib.chunks(binary, [:abstract_code])
+    end
+
+    abstract_code
   end
 
   defp replace_coverdata!(rewired, original_module) do
