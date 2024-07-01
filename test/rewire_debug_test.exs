@@ -19,7 +19,7 @@ defmodule RewireDebugTest do
       |> String.replace(":\"::\"", ":::")
       |> String.split("\n")
 
-    common = [
+    expected = [
       "\e[94m[Rewire] [Elixir.Rewire.Hello] old name: [:Rewire, :Hello]\e[0m",
       "\e[94m[Rewire] [Elixir.Rewire.Hello] new name: [:Rewire, :Hello, :R]\e[0m",
       "\e[94m[Rewire] [Elixir.Rewire.Hello] alias: :Hello\e[0m",
@@ -85,13 +85,7 @@ defmodule RewireDebugTest do
       " ]}",
       "",
       "\e[0m",
-      "\e[94m[Rewire] [Elixir.Rewire.Hello] new code:"
-    ]
-
-    # The structure changed a little bit for this part in Elixir 1.13, so we
-    # have different expectations depending on the currently running version.
-
-    current_structure = [
+      "\e[94m[Rewire] [Elixir.Rewire.Hello] new code:",
       "",
       "defmodule Rewire.Hello.R do",
       "  [",
@@ -107,25 +101,6 @@ defmodule RewireDebugTest do
       "\e[0m",
       ""
     ]
-
-    pre_elixir_1_13 = [
-      "",
-      "defmodule(Rewire.Hello.R) do",
-      "  [def(__rewire__()) do",
-      "    %{original: [:Rewire, :Hello], rewired: %{}}",
-      "  end, @callback(hello() :: String.t()), def(hello()) do",
-      "    \"hello\"",
-      "  end]",
-      "end",
-      "\e[0m",
-      ""
-    ]
-
-    expected =
-      case Version.compare(System.version(), "1.13.0") do
-        :lt -> common ++ pre_elixir_1_13
-        _ -> common ++ current_structure
-      end
 
     assert actual == expected
   end

@@ -5,7 +5,7 @@ defmodule Rewire.MixProject do
     [
       app: :rewire,
       version: "0.9.0",
-      elixir: "~> 1.7",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),

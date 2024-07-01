@@ -111,7 +111,7 @@ defmodule Rewire.Utils do
   end
 
   def debug_log(%{debug: true, mod: mod}, message) do
-    IO.puts(IO.ANSI.format([:light_blue, "[Rewire] [#{mod}] #{message}"]))
+    IO.puts(IO.ANSI.format([:light_blue, "[Rewire] [#{mod}] #{message}"], true))
   end
 
   def debug_log(_opts, _message), do: :ok
