@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.10.0] - 2024-07-06
+
+### Added
+
+- support for rewiring `use` macros
+
 ## [0.9.0] - 2022-10-02
 
 ### Added

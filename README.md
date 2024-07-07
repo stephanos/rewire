@@ -16,7 +16,7 @@ Just add `rewire` to your list of dependencies in mix.exs:
 ```elixir
 def deps do
   [
-    {:rewire, "~> 0.9", only: :test}
+    {:rewire, "~> 0.10", only: :test}
   ]
 end
 ```
