@@ -34,5 +34,15 @@ defmodule RewireAliasTest do
         assert ModuleWithDependency.bye() == "au revoir"
       end
     end
+
+    test "works for macro" do
+      rewire Rewire.ModuleWithMacro, Hello: Bonjour, Macro: BonApresMidi
+      assert ModuleWithMacro.hello_passthrough() == "bonjour"
+      assert ModuleWithMacro.good_afternoon_passthrough() == "bon apres-midi"
+
+      rewire Rewire.ModuleWithMacroWithArgs, Hello: Bonjour, Macro: BonApresMidi
+      assert ModuleWithMacroWithArgs.hello_passthrough() == "bonjour"
+      assert ModuleWithMacroWithArgs.good_afternoon_passthrough() == "bon apres-midi"
+    end
   end
 end

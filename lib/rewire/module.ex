@@ -143,6 +143,14 @@ defmodule Rewire.Module do
     )
   end
 
+  defp rewrite(use_ast = {:use, _l1, [{:__aliases__, _l2, _macro_ast} | _args]}, acc) do
+    {:__block__, [], [{:__block__, [], [req, using]}]} = Macro.expand(use_ast, __ENV__)
+    {:require, _counter_ctx, [required_module]} = req
+    env = %{__ENV__ | requires: [required_module] ++ __ENV__.requires}
+
+    {Macro.expand(using, env), acc}
+  end
+
   # Removes a single alias (ie `alias A.A`) pointing to an overriden module dependency. Keeps the others.
   defp rewrite(
          expr = {:alias, _, [{:__aliases__, _, module_ast}]},
